@@ -1,0 +1,13 @@
+{
+  "name": "budget-app",
+  "version": "0.1.0",
+  "author": "J.J. Richard",
+  "description": "App to help me easily track my spending",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^11.2.1"
+  }
+}
