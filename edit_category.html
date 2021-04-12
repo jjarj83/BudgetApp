@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	  <meta charset="utf-8">
+	  <meta name="viewport" content="width=device-width">
+	  <title>repl.it</title>
+	  <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="form-container">
+      <span>
+        <input type="text" placeholder="Category Name"/>
+      </span>
+      <span>
+        <select required>
+          <option value="" disabled selected hidden>Parent Category</option>
+          <option>Parent Category 1</option>
+          <option>Parent Category 2</option>
+        </select>
+      </span>
+      <span>
+        <input type="color"/>
+      </span>
+      <br>
+      <textarea placeholder="Description..."></textarea>
+      <br>
+    </div>
+    <br>
+    <div id="button-container">
+      <button class="save-button" id="save-category" type="button">Add</button>
+    </div>
+    <script src="edit_category.js"></script>
+  </body>
+</html>
