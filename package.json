@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "electron": "^11.2.1"
+  },
+  "dependencies": {
+    "mysql": "^2.18.1"
   }
 }

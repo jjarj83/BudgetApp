@@ -10,6 +10,8 @@ app.on('ready', function() {
       nodeIntegration: true,
       contextIsolation: false,
     },
+    width: 1400,
+    height: 800,
   })
 
   mainWindow.loadFile('manage_categories.html')
