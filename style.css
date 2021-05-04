@@ -179,6 +179,10 @@ textarea {
   text-align:  right;
 }
 
+#category-color {
+  display: none;
+}
+
 #add-category {
   margin-top: 10%;
   width: 100%;

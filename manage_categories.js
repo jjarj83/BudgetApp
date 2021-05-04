@@ -1,27 +1,5 @@
 const { ipcRenderer } = require('electron')
 
-class ParentCategory {
-  constructor(id, name, total, color) {
-    this.id = id;
-    this.name = name;
-    this.total = total;
-    this.color = color;
-    this.children = [];
-  }
-
-  addChild(child) {
-    this.children.push(child);
-  }
-}
-
-class ChildCategory {
-  constructor(id, name, total) {
-    this.id = id;
-    this.name = name;
-    this.total = total;
-  }
-}
-
 window.addEventListener('load', (event) => {
   var mysql = require('mysql');
 
@@ -40,12 +18,14 @@ window.addEventListener('load', (event) => {
   });
 
   getParentCategories(connection, printCategory);
+
+  document.getElementById('add-parent-category').addEventListener("click", addParentCategory);
 });
 
-document.getElementById('add-category-button').addEventListener("click", addCategory);
+
 
 function getParentCategories(connection, callback) {
-  $query = 'SELECT id, name, total, color FROM categories WHERE parent_category_id is null';
+  $query = 'SELECT id, name, color FROM categories WHERE parent_category_id is null';
 
   connection.query($query, function(err, rows, fields) {
     if (err) {
@@ -67,7 +47,7 @@ function printCategory(connection, pid, pname, ptotal, pcolor) {
   html += '<tr>';
   html += '<th>' + pname + '</th>';
   html += '<th>Total:</th>';
-  html += '<th>' + ptotal + '</th>';
+  html += '<th>0</th>';
   html += '<th>';
   html += '<button type="button" class="edit-button">Edit</button>';
   html += '</th>';
@@ -76,7 +56,7 @@ function printCategory(connection, pid, pname, ptotal, pcolor) {
   html += '</th>';
   html += '</tr>';
 
-  $query = 'SELECT id, name, total FROM categories WHERE parent_category_id = ' + pid;
+  $query = 'SELECT id, name FROM categories WHERE parent_category_id = ' + pid;
 
   connection.query($query, function(err, rows, fields) {
     if (err) {
@@ -89,7 +69,7 @@ function printCategory(connection, pid, pname, ptotal, pcolor) {
       html += '<tr>';
       html += '<td>' + row.name + '</td>';
       html += '<td>Total:</td>';
-      html += '<td>' + row.total + '</td>';
+      html += '<td>0</td>';
       html += '<td>';
       html += '<button type="button" class="edit-button">Edit</button>';
       html += '</td>';
@@ -100,12 +80,23 @@ function printCategory(connection, pid, pname, ptotal, pcolor) {
     });
 
     html += '</table>';
+    html += '<button type="button" value="' + pid + '"class="edit-button">Add Sub-Category</button>'
     html += '</div>';
 
     document.getElementById('container').innerHTML += html;
+    var elements = document.getElementsByClassName("edit-button");
+
+    Array.from(elements).forEach(function(element) {
+      element.addEventListener("click", function(){ addSubCategory(element.value); });
+    });
   });
 }
 
-function addCategory() {
-  ipcRenderer.send('load-editCategory');
+function addParentCategory() {
+  ipcRenderer.send('load-editCategory', 0);
+}
+
+function addSubCategory(pid) {
+  console.log(pid);
+  ipcRenderer.send('load-editCategory', pid);
 }
