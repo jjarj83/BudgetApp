@@ -5,7 +5,8 @@
     <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-    <link href="style.css" rel="stylesheet" type="text/css" />
+    <link href="../style.css" rel="stylesheet" type="text/css" />
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
   </head>
 
   <body>
@@ -15,7 +16,7 @@
       <a class="active" href="#categories">Categories</a>
     </div>
     <div id = "add-category">
-      <button type="button" id="add-parent-category">Add Parent Category</button>
+      <button type="button" class="btn btn-info btn-lg" id="add-parent-category">Add Parent Category</button>
   	</div>
   	<div class="flex-container" id="container">
     </div>

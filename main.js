@@ -13,7 +13,7 @@ app.on('ready', function() {
     height: 800,
   })
 
-  mainWindow.loadFile('manage_categories.html')
+  mainWindow.loadFile('Categories\\manage_categories.html')
   mainWindow.openDevTools()
 
   mainWindow.on('closed', function() {
@@ -34,12 +34,8 @@ app.on('ready', function() {
       modal: true,
     })
 
-    editCategoryWindow.loadFile('edit_category.html', {query: {pid: pid}});
-    //editCategoryWindow.loadFile('edit_category.html', {query: {"data:" pid}});
+    editCategoryWindow.loadFile('Categories\\edit_category.html', {query: {pid: pid}});
     editCategoryWindow.openDevTools();
-
-    //editCategoryWindow.webContents.send('load-editCategory', pid);
-    //editCategoryWindow.webContents.send('add-sub', pid);
   })
 
   ipcMain.on('close-editCategory', function() {
