@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "bootstrap": "^5.0.0-beta3",
+    "datatables.net": "^1.10.24",
+    "datatables.net-bs4": "^1.10.24",
+    "datatables.net-dt": "^1.10.24",
     "mysql": "^2.18.1"
   }
 }

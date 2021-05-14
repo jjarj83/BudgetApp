@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <link href="../style.css" rel="stylesheet" type="text/css" />
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+  </head>
+
+  <body>
+  	<div class="topnav">
+      <a href="#dashboard">Dashboard</a>
+      <a class="active" href="#transactions">Transactions</a>
+      <a href="#categories">Categories</a>
+    </div>
+    <div id = "add-category">
+      <button type="button" class="btn btn-info btn-lg" id="add-transaction">Add Transactions</button>
+  	</div>
+  	<div class="container-fluid">
+      <div class="card border-primary mb-3">
+        <div class="card-header">Transactions</div>
+        <div class="card-body">
+          <table id="transactions-table" class="table table-striped table-bordered table-hover">
+            <thead class="thead-dark">
+              <tr>
+                <th class="col-xs-2">Date</th>
+                <th class="col-xs-3">Transaction</th>
+                <th class="col-xs-2">Amount</th>
+                <th class="col-xs-3">Category</th>
+                <th class="col-xs-2"></th>
+                <th class="col-xs-2"></th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    </div>
+  <script src="manage_transactions.js"></script>
+  </body>
+</html>

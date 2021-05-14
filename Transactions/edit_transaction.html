@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	  <meta charset="utf-8">
+	  <meta name="viewport" content="width=device-width">
+	  <title>repl.it</title>
+	  <link href="../style.css" rel="stylesheet" type="text/css" />
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <form>
+      <div class="form-group">
+        <input type="date" class="form_control" id="transaction-date"/>
+        <input type="text" class="form_control" placeholder="Transaction Description" id="transaction-name"/>
+        <input type="text" class="form_control" placeholder="0.00" id="transaction-amount"/>
+        <label for="category" class="form-label mt-4">Category</label>
+        <select type="select" class="form-select" id="parent-category">
+          <option value=0>--Parent Category--</option>
+        </select>
+        <select type="select" class="form-select" id="sub-category" disabled>
+          <option>--Sub Category--</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button id="save-transaction" class="btn btn-primary" type="button">Add</button>
+      </div>
+    </form>
+    <script src="edit_transaction.js"></script>
+  </body>
+</html>

@@ -22,8 +22,6 @@ window.addEventListener('load', (event) => {
   document.getElementById('add-parent-category').addEventListener("click", addParentCategory);
 });
 
-
-
 function getParentCategories(connection, callback) {
   $query = 'SELECT id, name, color FROM categories WHERE parent_category_id is null';
 
@@ -101,6 +99,5 @@ function addParentCategory() {
 }
 
 function addSubCategory(pid) {
-  console.log(pid);
   ipcRenderer.send('load-editCategory', pid);
 }
