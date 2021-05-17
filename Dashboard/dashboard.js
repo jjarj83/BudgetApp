@@ -2,9 +2,6 @@ const { ipcRenderer } = require('electron')
 const Chart = require('chart.js')
 
 window.addEventListener('load', (event) => {
-  document.getElementById('transactions-nav').addEventListener("click", loadTransactions);
-  document.getElementById('categories-nav').addEventListener("click", loadCategories);
-
   var mysql = require('mysql');
 
   var connection = mysql.createConnection({

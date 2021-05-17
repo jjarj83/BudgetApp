@@ -94,6 +94,14 @@ function printCategory(connection, pid, pname, ptotal, pcolor) {
   });
 }
 
+function loadTransactions() {
+  ipcRenderer.send('load-manageTransactions');
+}
+
+function loadDashboard() {
+  ipcRenderer.send('loadDashboard');
+}
+
 function addParentCategory() {
   ipcRenderer.send('load-editCategory', 0);
 }
