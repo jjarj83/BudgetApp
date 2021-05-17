@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.0.0-beta3",
+    "chart.js": "^3.2.1",
     "datatables.net": "^1.10.24",
     "datatables.net-bs4": "^1.10.24",
     "datatables.net-dt": "^1.10.24",

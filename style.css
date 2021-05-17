@@ -1,28 +1,3 @@
-.topnav {
-  background-color: #7CA784;
-  overflow: hidden;
-}
-
-.topnav a {
-  float: left;
-  color: #00120B;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 1em;
-  font-family: helvetica;
-}
-
-.topnav a:hover {
-  background-color: #EDF4ED;
-  color: #00120B;
-}
-
-.topnav a.active {
-  background-color: #00120B;
-  color: #EDF4ED;
-}
-
 .flex-container {
   display: flex;
   flex-flow: row wrap;

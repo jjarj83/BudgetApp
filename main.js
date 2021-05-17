@@ -1,60 +1,67 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 
+let manageCategoriesWindow;
+let editCategoryWindow;
+let manageTransactionsWindow;
+let editTransactionWindow;
+let dashboardWindow;
+
 app.on('ready', function() {
-  let manageCategoriesWindow;
-  let editCategoryWindow;
-  let manageTransactionsWindow;
-  let editTransactionWindow;
+  loadDashboard();
 
-  manageTransactionsWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-    width: 2100,
-    height: 1200,
+  ipcMain.on('loadDashboard', function(event, pid) {
+    loadDashboard();
   });
 
-  manageTransactionsWindow.loadFile('Transactions\\manage_transactions.html');
-  manageTransactionsWindow.openDevTools();
+  ipcMain.on('load-manageTransactions', function(event, pid) {
+    dashboardWindow.hide();
 
-  manageTransactionsWindow.on('closed', function() {
-    console.log("Close");
-    app.quit();
-  });
-/*
-  manageCategoriesWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-    width: 1400,
-    height: 800,
-  });
+    manageTransactionsWindow = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+      },
+      width: 2100,
+      height: 1200,
+    });
 
-  manageCategoriesWindow.loadFile('Categories\\manage_categories.html');
-  manageCategoriesWindow.openDevTools();
-
-  manageCategoriesWindow.on('closed', function() {
-    console.log("Close");
-    app.quit();
-  });
-*/
-ipcMain.on('load-editTransaction', function(event, pid) {
-  //will have to make this a seperate function so I can have different events triggering it
-  editTransactionWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-    width: 1400,
-    height: 800,
-    parent: manageTransactionsWindow,
-    modal: true,
+    manageTransactionsWindow.loadFile('Transactions\\manage_transactions.html');
+    manageTransactionsWindow.openDevTools();
+    dashboardWindow.close();
   });
 
-  editTransactionWindow.loadFile('Transactions\\edit_transaction.html');
-  editTransactionWindow.openDevTools();
+
+  ipcMain.on('load-manageCategories', function(event, pid) {
+    dashboardWindow.hide();
+    manageCategoriesWindow = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+      },
+      width: 2100,
+      height: 1200,
+    });
+
+    manageCategoriesWindow.loadFile('Categories\\manage_categories.html');
+    manageCategoriesWindow.openDevTools();
+    dashboardWindow.close();
+  })
+
+  ipcMain.on('load-editTransaction', function(event, pid) {
+    //will have to make this a seperate function so I can have different events triggering it
+    editTransactionWindow = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+      },
+      width: 1400,
+      height: 800,
+      parent: manageTransactionsWindow,
+      modal: true,
+    });
+
+    editTransactionWindow.loadFile('Transactions\\edit_transaction.html');
+    editTransactionWindow.openDevTools();
   })
 
   ipcMain.on('close-editTransaction', function() {
@@ -70,8 +77,8 @@ ipcMain.on('load-editTransaction', function(event, pid) {
         nodeIntegration: true,
         contextIsolation: false,
       },
-      width: 800,
-      height: 600,
+      width: 1400,
+      height: 800,
       parent: manageCategoriesWindow,
       modal: true,
     });
@@ -92,3 +99,17 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 })
+
+function loadDashboard() {
+  dashboardWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+    width: 2100,
+    height: 1200,
+  });
+
+  dashboardWindow.loadFile('Dashboard\\dashboard.html');
+  dashboardWindow.openDevTools();
+}
