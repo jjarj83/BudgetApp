@@ -23,7 +23,10 @@ window.addEventListener('load', (event) => {
 });
 
 function getParentCategories(connection, callback) {
-  $query = 'SELECT id, name, color FROM categories WHERE parent_category_id is null';
+  $query = `SELECT c.id, c.name, c.color,
+	           (SELECT s.amount FROM stats s WHERE c.id = s.category_id and s.stat_month = 5 and s.stat_year = 2021) as amount
+	          FROM categories c
+	          WHERE c.parent_category_id is null`;
 
   connection.query($query, function(err, rows, fields) {
     if (err) {
@@ -33,12 +36,14 @@ function getParentCategories(connection, callback) {
     }
 
     rows.forEach(function(row) {
-      printCategory(connection, row.id, row.name, row.total, row.color);
+      printCategory(connection, row.id, row.name, row.amount, row.color);
     });
   });
 }
 
-function printCategory(connection, pid, pname, ptotal, pcolor) {
+function printCategory(connection, pid, pname, pamount, pcolor) {
+
+  if (pamount === null) { pamount = 0; }
 
   var html = '<div class=""flex-child"">';
   html += '<table class="table table-striped table-bordered table-hover">';
@@ -46,7 +51,7 @@ function printCategory(connection, pid, pname, ptotal, pcolor) {
   html += '<tr>';
   html += '<th>' + pname + '</th>';
   html += '<th>Total:</th>';
-  html += '<th>0</th>';
+  html += '<th>' + pamount.toFixed(2) + '</th>';
   html += '<th>';
   html += '<button type="button" class="btn btn-outline-primary btn-sm">Edit</button>';
   html += '</th>';
@@ -57,9 +62,12 @@ function printCategory(connection, pid, pname, ptotal, pcolor) {
   html += '</thead>';
   html += '<tbody>';
 
-  $query = 'SELECT id, name FROM categories WHERE parent_category_id = ' + pid;
+  $query = `SELECT c.id, c.name,
+	           (select s.amount from stats s where c.id = s.category_id and s.stat_month = 5 and s.stat_year = 2021) as amount
+	          FROM categories c
+	          WHERE c.parent_category_id = ?`;
 
-  connection.query($query, function(err, rows, fields) {
+  connection.query($query, pid, function(err, rows, fields) {
     if (err) {
       console.log("An error occured performing the query.");
       console.log(err);
@@ -67,10 +75,12 @@ function printCategory(connection, pid, pname, ptotal, pcolor) {
     }
 
     rows.forEach(function(row) {
+      if (row.amount === null) { row.amount = 0; }
+
       html += '<tr>';
       html += '<td>' + row.name + '</td>';
       html += '<td>Total:</td>';
-      html += '<td>0</td>';
+      html += '<td>' + row.amount.toFixed(2) + '</td>';
       html += '<td>';
       html += '<button type="button" class="btn btn-primary btn-sm">Edit</button>';
       html += '</td>';
@@ -92,14 +102,6 @@ function printCategory(connection, pid, pname, ptotal, pcolor) {
       element.addEventListener("click", function(){ addSubCategory(element.value); });
     });
   });
-}
-
-function loadTransactions() {
-  ipcRenderer.send('load-manageTransactions');
-}
-
-function loadDashboard() {
-  ipcRenderer.send('loadDashboard');
 }
 
 function addParentCategory() {
