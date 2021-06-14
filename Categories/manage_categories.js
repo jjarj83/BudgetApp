@@ -46,6 +46,8 @@ function printCategory(connection, pid, pname, pamount, pcolor) {
   if (pamount === null) { pamount = 0; }
 
   var html = '<div class=""flex-child"">';
+  html += '<div class="card border-primary mb-3">';
+  html += '<div class="card-body">';
   html += '<table class="table table-striped table-bordered table-hover">';
   html += '<thead class="thead-dark">';
   html += '<tr>';
@@ -93,6 +95,8 @@ function printCategory(connection, pid, pname, pamount, pcolor) {
     html += '</tbody>'
     html += '</table>';
     html += '<button type="button" value="' + pid + '"class="btn btn-primary">Add Sub-Category</button>'
+    html += '</div>';
+    html += '</div>';
     html += '</div>';
 
     document.getElementById('container').innerHTML += html;

@@ -33,7 +33,7 @@ window.addEventListener('load', (event) => {
 });
 
 function getTransactions(connection, $) {
-  $query = `SELECT  t.id, date_format(t.date, '%m-%d-%Y') as date, t.name, t.amount, c.name as category
+  $query = `SELECT  t.id, date_format(t.date, '%Y-%m-%d') as date, t.name, t.amount, c.name as category
             FROM    transactions t, categories c
             WHERE   t.category_id = c.id;`;
 

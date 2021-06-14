@@ -8,15 +8,25 @@
     <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
   </head>
   <body>
-    <form>
-      <div class="form-group">
-        <input type="text" class="form_control" placeholder="Category Name" id="category-name"/>
-        <input type="color" class="form-control form-control-color" id="category-color"/>
+    <div class="p-5">
+      <div class="card border-primary mb-3">
+        <div class="card-body">
+          <form>
+            <div class="form-group">
+              <label for="category-name" class="form-label">Category Name</label>
+              <input type="text" class="form-control" placeholder="Category Name" id="category-name"/>
+            </div>
+            <div class="form-group">
+              <label for="category-name" class="form-label" id="category-color-label">Category Color</label>
+              <input type="color" class="form-control form-control-color" id="category-color"/>
+            </div>
+            <div class="form-group">
+              <button id="save-category" class="btn btn-primary" type="button">Add</button>
+            </div>
+          </form>
+        </div>
       </div>
-      <div class="form-group">
-        <button id="save-category" class="btn btn-primary" type="button">Add</button>
-      </div>
-    </form>
+    </div>
     <script src="edit_category.js"></script>
   </body>
 </html>

@@ -80,20 +80,53 @@ function addTransaction(connection) {
   var parentCategory = document.getElementById('parent-category').value;
   var subCategory = document.getElementById('sub-category').value;
 
-  var category = (subCategory === '0') ? parentCategory : subCategory;
 
-  console.log(date, name, amount, category);
+  if (validateTransaction(date, name, amount, parentCategory, subCategory)) {
 
-  $query = `call add_transaction(?, ?, ?, ?)`;
+    var category = (subCategory === '0') ? parentCategory : subCategory;
 
-  connection.query($query, [name, date, amount, category], function(err, rows, fields) {
-    if (err) {
-      console.log("An error occured performing the query.");
-      console.log(err);
-      return;
-    }
+    console.log(date, name, amount, category);
 
-    ipcRenderer.send('close-editTransaction')
-  });
+    $query = `call add_transaction(?, ?, ?, ?)`;
 
+    connection.query($query, [name, date, amount, category], function(err, rows, fields) {
+      if (err) {
+        console.log("An error occured performing the query.");
+        console.log(err);
+        return;
+      }
+
+      ipcRenderer.send('close-editTransaction')
+    });
+  }
+
+}
+
+function validateTransaction(date, name, amount, parentCategory, subCategory) {
+  var errors = 0;
+  console.log(parentCategory);
+
+  if (date === "") {
+    errors++;
+    document.getElementById("transaction-date").classList.add("is-invalid");
+  }
+
+  if (name === "") {
+    errors++;
+    document.getElementById("transaction-name").classList.add("is-invalid");
+  }
+
+  if (amount === "") {
+    errors++;
+    document.getElementById("transaction-amount").classList.add("is-invalid");
+  }
+
+  if (parentCategory === '0') {
+    errors++;
+    document.getElementById("parent-category").classList.add("is-invalid");
+  }
+  console.log(errors);
+
+  if (errors > 0) { return false; }
+  return true;
 }

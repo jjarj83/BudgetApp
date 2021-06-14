@@ -12,6 +12,6 @@
   align-self: flex-start;
 }
 
-#category-color {
+#category-color, #category-color-label {
   display: none;
 }

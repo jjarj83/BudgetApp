@@ -8,6 +8,7 @@ let pid = query['?pid'];
 
 if (pid === '0') {
   document.getElementById('category-color').style.display = "block";
+  document.getElementById('category-color-label').style.display = "block";
 }
 
 document.getElementById('save-category').addEventListener("click", function() { addCategory(pid)});
@@ -27,26 +28,27 @@ function addCategory() {
     }
   });
 
-
   var name = document.getElementById('category-name').value;
-
-  let $query;
-  if (pid === '0') {
-    var color = document.getElementById('category-color').value;
-    pid = null;
-  }
-
-  //console.log(name, color);
-  $query = `insert into categories (name, parent_category_id, color)
-             values (?, ?, ?);`
-
-  connection.query($query, [name, pid, color], function(err, rows, fields) {
-    if (err) {
-      console.log("An error occured performing the query.");
-      console.log(err);
-      return;
+  if (name === "") {
+    document.getElementById("category-name").classList.add("is-invalid");
+  } else {
+    let $query;
+    if (pid === '0') {
+      var color = document.getElementById('category-color').value;
+      pid = null;
     }
 
-    ipcRenderer.send('close-editCategory')
-  });
+    $query = `insert into categories (name, parent_category_id, color)
+               values (?, ?, ?);`
+
+    connection.query($query, [name, pid, color], function(err, rows, fields) {
+      if (err) {
+        console.log("An error occured performing the query.");
+        console.log(err);
+        return;
+      }
+
+      ipcRenderer.send('close-editCategory')
+    });
+  }
 }
