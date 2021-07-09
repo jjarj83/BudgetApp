@@ -24,9 +24,11 @@ window.addEventListener('load', (event) => {
 
 function getParentCategories(connection, callback) {
   $query = `SELECT c.id, c.name, c.color,
-	           (SELECT s.amount FROM stats s WHERE c.id = s.category_id and s.stat_month = 5 and s.stat_year = 2021) as amount
+	           (SELECT s.amount FROM stats s WHERE c.id = s.category_id and s.stat_month = 5 and s.stat_year = 2021) as amount,
+              (SELECT count(1) FROM categories cc WHERE cc.parent_category_id = c.id) as children
 	          FROM categories c
-	          WHERE c.parent_category_id is null`;
+	          WHERE c.parent_category_id is null
+            ORDER BY children desc`;
 
   connection.query($query, function(err, rows, fields) {
     if (err) {
@@ -45,7 +47,7 @@ function printCategory(connection, pid, pname, pamount, pcolor) {
 
   if (pamount === null) { pamount = 0; }
 
-  var html = '<div class=""flex-child"">';
+  var html = '<div class="flex-child">';
   html += '<div class="card border-primary mb-3">';
   html += '<div class="card-body">';
   html += '<table class="table table-striped table-bordered table-hover">';

@@ -13,7 +13,7 @@ app.on('ready', function() {
     height: 1200,
   });
 
-  mainWindow.loadFile('Dashboard\\dashboard.html');
+  mainWindow.loadFile('Layouts\\dashboard.html');
   mainWindow.openDevTools();
 
   ipcMain.on('load-editTransaction', function(event, pid) {

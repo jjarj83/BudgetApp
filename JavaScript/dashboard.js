@@ -2,7 +2,12 @@ const { ipcRenderer } = require('electron')
 const Chart = require('chart.js')
 
 window.addEventListener('load', (event) => {
+  var $ = require('jquery');
   var mysql = require('mysql');
+
+  $(function() {
+    $("#sidebar").load("sidebar.html");
+  });
 
   var connection = mysql.createConnection({
     host: 'localhost',
@@ -20,6 +25,7 @@ window.addEventListener('load', (event) => {
 
   loadSpendingPiChart(connection);
   loadSpendingLineChart(connection);
+  loadBalancesGraph(connection);
   loadSavingsRate(connection);
 });
 
@@ -48,8 +54,8 @@ function loadSpendingPiChart(connection) {
       colors.push(row.color);
     });
 
-    var spc = document.getElementById('spending-chart');
-    var spendingChart = new Chart(spc, {
+    var ctx = document.getElementById('spending-chart');
+    var spendingChart = new Chart(ctx, {
       type: 'pie',
       data: {
         labels: labels,
@@ -90,8 +96,8 @@ function loadSpendingLineChart(connection) {
     labels = labels.reverse();
     data = data.reverse();
 
-    var spc = document.getElementById('spending-graph');
-    var spendingChart = new Chart(spc, {
+    var ctx = document.getElementById('spending-graph');
+    var spendingChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
@@ -100,7 +106,9 @@ function loadSpendingLineChart(connection) {
             label: 'Spending By Month',
             data: data,
             tension: 0.1,
-            borderColor: 'rgb(75, 192, 192)'
+            borderColor: 'rgb(120, 194, 173)',
+            backgroundColor: 'rgb(167, 215, 201)',
+            fill: 'origin'
           }
         ]
       }
@@ -108,7 +116,51 @@ function loadSpendingLineChart(connection) {
   });
 }
 
-function loadSavingsRate (connection) {
+function loadBalancesGraph(connection) {
+  $query = `SELECT DATE_FORMAT(entry_date, '%m-%d-%Y') as entry_date, total
+            FROM balance_entries
+            WHERE entry_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+            ORDER BY entry_date`
+
+  connection.query($query, function(err, rows, fields) {
+    if (err) {
+      console.log("An error occured performing the query.");
+      console.log(err);
+      return;
+    }
+
+    var labels = [];
+    var data = [];
+
+    rows.forEach(function(row) {
+      labels.push(row.entry_date);
+      data.push(row.total);
+    });
+
+    var ctx = document.getElementById('balance-graph');
+    var spendingChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Account Balances',
+            data: data,
+            tension: 0.1,
+            //borderColor: 'rgb(120, 194, 173)',
+            fill: {
+                target: 'origin',
+                above: 'rgb(167, 215, 201)',
+                below: 'rgb(247, 186, 189)'
+            }
+          }
+        ]
+      }
+    });
+  });
+}
+
+function loadSavingsRate(connection) {
   $query = `SELECT sum(amount) as amount
             FROM stats
             WHERE stat_month = 5 and stat_year = 2021`
@@ -129,5 +181,26 @@ function loadSavingsRate (connection) {
     var html = '<h1>' + percent.toFixed(2) + '%</h1>';
 
     document.getElementById('savings-rate').innerHTML += html;
+    loadRetirement(connection, spending);
+  });
+}
+
+function loadRetirement(connection, spending) {
+  var age = 23;
+
+  $query = `SELECT 401k as fouronek, ira
+            FROM balance_entries
+            ORDER BY entry_date desc
+            LIMIT 1`
+
+  connection.query($query, function(err, rows, fields) {
+    if (err) {
+      console.log("An error occured performing the query.");
+      console.log(err);
+      return;
+    }
+
+    var investments = Number(rows[0].fouronek) + Number(rows[0].ira);
+    console.log(age, spending);
   });
 }
