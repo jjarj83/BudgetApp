@@ -74,7 +74,7 @@ app.on('ready', function() {
       modal: true,
     });
 
-    childWindow.loadFile('Balances\\edit_entry.html');
+    childWindow.loadFile('Layouts\\edit_balance_entry.html');
     childWindow.openDevTools();
   })
 

@@ -1,7 +1,12 @@
 const { ipcRenderer } = require('electron')
 
 window.addEventListener('load', (event) => {
+  var $ = require('jquery');
   var mysql = require('mysql');
+
+  $(function() {
+    $("#sidebar").load("sidebar.html");
+  });
 
   var connection = mysql.createConnection({
     host: 'localhost',
