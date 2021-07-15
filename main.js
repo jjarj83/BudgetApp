@@ -52,7 +52,7 @@ app.on('ready', function() {
       modal: true,
     });
 
-    childWindow.loadFile('Categories\\edit_category.html', {query: {pid: pid}});
+    childWindow.loadFile('Layouts\\edit_category.html', {query: {pid: pid}});
     childWindow.openDevTools();
   })
 

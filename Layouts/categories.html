@@ -17,29 +17,21 @@
             <div class="col-12">
               <div class="card card-olive">
                 <div class="card-header navbar navbar-expand">
-                  <h5>Balance Entries</h5>
+                  <h5>Categories</h5>
                   <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                      <button type="button" class="btn btn-light btn-sm" id="add-entry"><i class="fas fa-plus"></i></button>
+                      <button type="button" class="btn btn-light btn-sm" id="add-parent-category"><i class="fas fa-plus"></i></button>
                     </li>
                   </ul>
                 </div>
                 <div class="card-body table-responsive p-0">
-                  <table id="transactions-table" class="table table-striped table-sm table-hover text-nowrap">
+                  <table id="categories-table" class="table table-sm tale-hover text-nowrap">
                     <thead>
                       <tr>
-                        <th class="col-xs-2">Entry Date</th>
-                        <th class="col-xs-2">Checking</th>
-                        <th class="col-xs-2">Savings</th>
-                        <th class="col-xs-2">401K</th>
-                        <th class="col-xs-2">IRA</th>
-                        <th class="col-xs-2">HSA</th>
-                        <th class="col-xs-2">Other</th>
-                        <th class="col-xs-2"></th>
-                        <th class="col-xs-2">Loans</th>
-                        <th class="col-xs-2">Credit Cards</th>
-                        <th class="col-xs-2"></th>
-                        <th class="col-xs-2">Total</th>
+                        <th></th>
+                        <th style="width: 250px;">Category</th>
+                        <th style="width: 250px;">Total</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody id="table-body">
@@ -52,6 +44,6 @@
         </div>
       </div>
     </div>
-  <script src="../JavaScript/balances.js"></script>
+  <script src="../JavaScript/categories.js"></script>
   </body>
 </html>

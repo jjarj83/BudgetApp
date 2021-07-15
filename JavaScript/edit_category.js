@@ -8,10 +8,11 @@ let pid = query['?pid'];
 
 if (pid === '0') {
   document.getElementById('category-color').style.display = "block";
+  document.getElementById('category-color').addEventListener("change", function() { changeColor(); });
   document.getElementById('category-color-label').style.display = "block";
 }
 
-document.getElementById('save-category').addEventListener("click", function() { addCategory(pid)});
+document.getElementById('save-category').addEventListener("click", function() { addCategory(pid); });
 
 function addCategory() {
   var connection = mysql.createConnection({
@@ -51,4 +52,8 @@ function addCategory() {
       ipcRenderer.send('close-editCategory')
     });
   }
+}
+
+function changeColor() {
+  document.getElementById('category-color').style.backgroundColor = document.getElementById('category-color').value;
 }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	  <meta charset="utf-8">
+	  <meta name="viewport" content="width=device-width">
+    <link href="../style.css" rel="stylesheet" type="text/css" />
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../node_modules/bootstrap/dist/css/adminlte.min.css" rel="stylesheet" />
+    <script defer src="../node_modules/@fortawesome/fontawesome-free/js/all.js"></script>
+  </head>
+  <body>
+    <div class="p-5">
+      <div class="card border-primary mb-3">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Category Name</label>
+                <input type="text" class="form-control" placeholder="Category Name" id="category-name"/>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label id="category-color-label">Category Color</label>
+                <select class="custom-select" id="category-color" style="background-color: #f94144;">
+                  <option value="#f94144" style="background-color: #f94144;"></option>
+                  <option value="#f3722c" style="background-color: #f3722c;"></option>
+                  <option value="#f9a64d" style="background-color: #f9a64d;"></option>
+                  <option value="#f9c74f" style="background-color: #f9c74f;"></option>
+                  <option value="#90be6d" style="background-color: #90be6d;"></option>
+                  <option value="#43aa8b" style="background-color: #43aa8b;"></option>
+                  <option value="#359496" style="background-color: #359496;"></option>
+                  <option value="#277da1" style="background-color: #277da1;"></option>
+                  <option value="#5c6e8a" style="background-color: #5c6e8a;"></option>
+                  <option value="#905f73" style="background-color: #905f73;"></option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <button id="save-category" class="btn btn-primary" type="button">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../JavaScript/edit_category.js"></script>
+  </body>
+</html>

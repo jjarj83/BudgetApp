@@ -40,7 +40,7 @@ function getEntries(connection) {
       return;
     }
 
-    var table = document.getElementById('transactions-table');
+    var table = document.getElementById('table-body');
     rows.forEach(function(row) {
       var tableRow = table.insertRow();
       tableRow.insertCell().innerHTML = row.date;
