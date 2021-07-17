@@ -74,8 +74,8 @@ function getCategories(connection) {
 }
 
 function populateTable(parentCategories) {
+  var table = document.getElementById('table-body');
   for (const pid in parentCategories) {
-    var table = document.getElementById('table-body');
     var tableRow = table.insertRow();
     tableRow.style.backgroundColor = parentCategories[pid].color;
 

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link href="../style.css" rel="stylesheet" type="text/css" />
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../node_modules/bootstrap/dist/css/adminlte.min.css" rel="stylesheet" />
+    <script defer src="../node_modules/@fortawesome/fontawesome-free/js/all.js"></script>
+  </head>
+  <body class="sidebar-mini layout-fixed layout-navbar-fixed">
+    <div class="wrapper">
+      <div id="sidebar">
+      </div>
+      <div class="content-wrapper px-4 py-5">
+        <div class="content px-2">
+          <div class="row">
+            <div class="col-12">
+              <div class="card card-olive">
+                <div class="card-header navbar navbar-expand">
+                  <h5>Transactions</h5>
+                </div>
+                <div class="card-body table-responsive p-0">
+                  <table id="transactions-table" class="table table-sm tale-hover text-nowrap">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Transaction</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="table-body">
+                    </tbody>
+                  </table>
+                </div>
+                <div class="card-footer navbar navbar-expand">
+                  <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                      <button type="button" class="btn btn-primary btn-sm" id="save-transactions">Save</button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <script src="../JavaScript/transactions.js"></script>
+  </body>
+</html>

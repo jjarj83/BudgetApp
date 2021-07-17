@@ -33,8 +33,7 @@ app.on('ready', function() {
     childWindow.openDevTools();
   })
 
-  ipcMain.on('close-editTransaction', function() {
-    childWindow.close();
+  ipcMain.on('reload-transaction', function() {
     mainWindow.reload();
   })
 
