@@ -27,9 +27,9 @@ window.addEventListener('load', (event) => {
 });
 
 function getCategories(connection) {
-  $query = `SELECT c.id, c.name, c.color, c.parent_category_id,
-	           (SELECT s.amount FROM stats s WHERE c.id = s.category_id and s.stat_month = 5 and s.stat_year = 2021) as amount
-	          FROM categories c`;
+  $query = `SELECT c.id, c.name, c.color, c.parent_category_id, sum(s.amount) as amount
+	          FROM categories c left outer join stats s on c.id = s.category_id
+            GROUP BY c.id, c.name, c.color, c.parent_category_id`;
 
   connection.query($query, function(err, rows, fields) {
     var parentCategories = {};

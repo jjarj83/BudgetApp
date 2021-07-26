@@ -1,5 +1,5 @@
 const { ipcRenderer } = require('electron')
-var count = 1;
+var count = 1; var reloadCount = 0;
 let mysql = require('mysql');
 let $ = require('jquery');
 
@@ -30,7 +30,7 @@ function getTransactions(connection, $) {
   $query = `SELECT  t.id, date_format(t.date, '%m-%d-%Y') as date, t.name, t.amount, c.name as category
             FROM    transactions t, categories c
             WHERE   t.category_id = c.id
-                    and t.date >= '2021-05-01'
+                    and t.date >= '2021-01-01'
             ORDER BY t.date`;
 
   connection.query($query, function(err, rows, fields) {
@@ -126,19 +126,19 @@ function addRow(connection) {
 
 
 function addTransactions(connection) {
-  console.log("Here");
   var elements = document.getElementsByName("add-row");
-  for (var i = 1; i <= elements.length; i++) {
-    console.log("Here2");
+  var i = 1;
+  elements.forEach(function(e) {
     var date = document.getElementById(`transaction-date-${i}`).value;
     var name = document.getElementById(`transaction-name-${i}`).value;
     var amount = document.getElementById(`transaction-amount-${i}`).value;
     var category = document.getElementById(`transaction-category-${i}`).value;
+    i++;
 
     console.log(date, name, amount, category);
 
     if (validateTransaction(date, name, amount, category)) {
-
+      //console.log("Here");
       $query = `call add_transaction(?, ?, ?, ?)`;
 
       connection.query($query, [name, date, amount, category], function(err, rows, fields) {
@@ -146,13 +146,16 @@ function addTransactions(connection) {
           console.log("An error occured performing the query.");
           console.log(err);
           return;
+        } else {
+          console.log("Success");
+          reload();
         }
-
-        ipcRenderer.send('reload-transaction')
       });
+    } else {
+      reload();
     }
-
-  }
+  });
+  //console.log("Here");
 
 }
 
@@ -162,4 +165,13 @@ function validateTransaction(date, name, amount, category) {
   }
 
   return true;
+}
+
+function reload() {
+  reloadCount++;
+  console.log(reloadCount);
+  if (reloadCount === count) {
+    console.log("Reload");
+    ipcRenderer.send('reload-transaction');
+  }
 }
