@@ -26,16 +26,16 @@ window.addEventListener('load', (event) => {
   loadSpendingPiChart(connection);
   loadSpendingLineChart(connection);
   loadBalancesGraph(connection);
-  loadSavingsRate(connection);
+  //loadSavingsRate(connection);
 });
+
 
 function loadSpendingPiChart(connection) {
   $query = `SELECT c.id, c.name, c.color, s.amount
             FROM categories c, stats s
             WHERE c.parent_category_id is null
                   and c.id = s.category_id
-                  and s.stat_month = 5
-                  and s.stat_year = 2021`;
+                  and s.stat_year = 2021 and s.stat_month = 4`
 
   connection.query($query, function(err, rows, fields) {
     if (err) {
@@ -70,6 +70,7 @@ function loadSpendingPiChart(connection) {
   });
 }
 
+
 function loadSpendingLineChart(connection) {
   $query = `SELECT stat_year, stat_month, sum(amount) as amount
             FROM stats
@@ -85,16 +86,16 @@ function loadSpendingLineChart(connection) {
     }
 
     var labels = [];
-    var data = [];
+    var spending = [];
 
     rows.forEach(function(row) {
       var label = row.stat_month + '/' + row.stat_year;
       labels.push(label);
-      data.push(row.amount);
+      spending.push(row.amount);
     });
 
     labels = labels.reverse();
-    data = data.reverse();
+    spending = spending.reverse();
 
     var ctx = document.getElementById('spending-graph');
     var spendingChart = new Chart(ctx, {
@@ -104,17 +105,24 @@ function loadSpendingLineChart(connection) {
         datasets: [
           {
             label: 'Spending By Month',
-            data: data,
+            data: spending,
+            tension: 0.1,
+            borderColor: 'rgb(200, 165, 161)',
+            backgroundColor: 'rgb(247, 186, 189)',
+          },
+          {
+            label: 'Income By Month',
+            data: [3800, 3800, 3800, 3800],
             tension: 0.1,
             borderColor: 'rgb(120, 194, 173)',
             backgroundColor: 'rgb(167, 215, 201)',
-            fill: 'origin'
           }
         ]
       }
     });
   });
 }
+
 
 function loadBalancesGraph(connection) {
   $query = `SELECT DATE_FORMAT(entry_date, '%m-%d-%Y') as entry_date, total
@@ -159,6 +167,7 @@ function loadBalancesGraph(connection) {
     });
   });
 }
+
 
 function loadSavingsRate(connection) {
   $query = `SELECT sum(amount) as amount

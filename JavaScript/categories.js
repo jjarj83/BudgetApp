@@ -26,9 +26,11 @@ window.addEventListener('load', (event) => {
   document.getElementById('add-parent-category').addEventListener("click", addParentCategory);
 });
 
+
 function getCategories(connection) {
   $query = `SELECT c.id, c.name, c.color, c.parent_category_id, sum(s.amount) as amount
 	          FROM categories c left outer join stats s on c.id = s.category_id
+            WHERE s.stat_month = 4 and s.stat_year = 2021
             GROUP BY c.id, c.name, c.color, c.parent_category_id`;
 
   connection.query($query, function(err, rows, fields) {
@@ -72,6 +74,7 @@ function getCategories(connection) {
     populateTable(parentCategories);
   });
 }
+
 
 function populateTable(parentCategories) {
   var table = document.getElementById('table-body');

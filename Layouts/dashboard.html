@@ -45,7 +45,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="card card-olive">
-                <div class="card-header">Monthly Spending</div>
+                <div class="card-header">Spending Breakdown</div>
                 <div class="card-body">
                   <div class="chart-area">
                     <div class="chartjs-size-monitor">
@@ -60,6 +60,36 @@
                     <div class="progress-bar bg-danger" style="width: 100%"></div>
                   </div>
                   <span class="progress-description">100% of Monthly Budget</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-olive">
+                <div class="card-header">Spending Timeline</div>
+                <div class="card-body">
+                  <div class="chart-area">
+                    <div class="chartjs-size-monitor">
+                      <div class="chartjs-size-monitor-expand"><div class></div></div>
+                      <div class="chartjs-size-monitor-shrink"><div class></div></div>
+                    </div>
+                    <canvas id="spending-graph" class="chartjs-render-monitor" width="400" height="400"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card card-olive">
+                <div class="card-header">Account Balances</div>
+                <div class="card-body">
+                  <div class="chart-area">
+                    <div class="chartjs-size-monitor">
+                      <div class="chartjs-size-monitor-expand"><div class></div></div>
+                      <div class="chartjs-size-monitor-shrink"><div class></div></div>
+                    </div>
+                    <canvas id="balance-graph" class="chartjs-render-monitor" width="400" height="200"></canvas>
+                  </div>
                 </div>
               </div>
             </div>
