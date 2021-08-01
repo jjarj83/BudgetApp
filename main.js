@@ -82,6 +82,28 @@ app.on('ready', function() {
     mainWindow.reload();
   })
 
+  ipcMain.on('load-addTrade', function(event, pid) {
+    //will have to make this a seperate function so I can have different events triggering it
+    childWindow = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+      },
+      width: 1400,
+      height: 800,
+      parent: mainWindow,
+      modal: true,
+    });
+
+    childWindow.loadFile('Layouts\\add_trade.html');
+    childWindow.openDevTools();
+  })
+
+  ipcMain.on('close-addTrade', function() {
+    childWindow.close();
+    mainWindow.reload();
+  })
+
 })
 
 app.on('window-all-closed', () => {

@@ -17,16 +17,24 @@
             <div class="col-12">
               <div class="card card-olive">
                 <div class="card-header navbar navbar-expand">
-                  <h5>Transactions</h5>
+                  <h5>Portfolio</h5>
+                  <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                      <button type="button" class="btn btn-light btn-sm" id="new-trade"><i class="fas fa-plus"></i></button>
+                    </li>
+                  </ul>
                 </div>
                 <div class="card-body table-responsive p-0">
-                  <table id="transactions-table" class="table table-sm table-hover text-nowrap">
+                  <table id="positions-table" class="table table-sm table-hover text-nowrap">
                     <thead>
                       <tr>
-                        <th>Date</th>
-                        <th>Transaction</th>
-                        <th>Amount</th>
-                        <th>Category</th>
+                        <th>Ticker Symbol</th>
+                        <th>Shares</th>
+                        <th>Balance</th>
+                        <th>Current Price</th>
+                        <th>Avg. Purchase Price</th>
+                        <th>Growth</th>
+                        <th>% Change</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -34,19 +42,12 @@
                     </tbody>
                   </table>
                 </div>
-                <div class="card-footer navbar navbar-expand">
-                  <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                      <button type="button" class="btn btn-primary btn-sm" id="save-transactions">Save</button>
-                    </li>
-                  </ul>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  <script src="../JavaScript/transactions.js"></script>
+  <script src="../JavaScript/portfolio.js"></script>
   </body>
 </html>
