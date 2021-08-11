@@ -1,79 +1,26 @@
 const { ipcRenderer } = require('electron')
+const categoryFunctions = require('../Server/categoryFunctions.js');
 
 window.addEventListener('load', (event) => {
   var $ = require('jquery');
-  var mysql = require('mysql');
 
   $(function() {
     $("#sidebar").load("sidebar.html");
   });
 
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'budget_app'
-  });
-
-  connection.connect(function(err) {
-    if (err) {
-      console.log(err.code);
-      console.log(err.fatal);
+  let categories = categoryFunctions.getCategories().then(
+    function (response) {
+      categories = response;
+      console.log(categories);
+      populateTable(categories);
+    },
+    function (error) {
+      console.log(error);
     }
-  });
+  );
 
-  getCategories(connection);
   document.getElementById('add-parent-category').addEventListener("click", addParentCategory);
 });
-
-
-function getCategories(connection) {
-  $query = `SELECT c.id, c.name, c.color, c.parent_category_id, sum(s.amount) as amount
-	          FROM categories c left outer join stats s on c.id = s.category_id
-            WHERE s.stat_month = 4 and s.stat_year = 2021
-            GROUP BY c.id, c.name, c.color, c.parent_category_id`;
-
-  connection.query($query, function(err, rows, fields) {
-    var parentCategories = {};
-    var childCategories = [];
-
-    if (err) {
-      console.log("An error occured performing the query.");
-      console.log(err);
-      return;
-    }
-
-    rows.forEach(function(row) {
-      if (row.amount === null) { row.amount = 0; }
-      if (!row.parent_category_id) {
-        let parentCategory = {
-          name: row.name,
-          color: row.color,
-          amount: row.amount,
-          children: []
-        };
-        parentCategories[row.id] = parentCategory;
-      }
-    });
-
-
-    rows.forEach(function(row) {
-      if (row.amount === null) { row.amount = 0; }
-      if (row.parent_category_id) {
-        let childCategory = {
-          id: row.id,
-          name: row.name,
-          amount: row.amount,
-          pid: row.parent_category_id
-        };
-        parentCategories[row.parent_category_id].children.push(childCategory);
-      }
-    });
-
-    console.log("1.", parentCategories);
-    populateTable(parentCategories);
-  });
-}
 
 
 function populateTable(parentCategories) {

@@ -1,4 +1,5 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron');
+const mysql = require('mysql');
 
 let mainWindow;
 let childWindow;
@@ -13,7 +14,7 @@ app.on('ready', function() {
     height: 1200,
   });
 
-  mainWindow.loadFile('Layouts\\dashboard.html');
+  mainWindow.loadFile('Layouts/dashboard.html');
   mainWindow.openDevTools();
 
   ipcMain.on('load-editTransaction', function(event, pid) {
@@ -29,7 +30,7 @@ app.on('ready', function() {
       modal: true,
     });
 
-    childWindow.loadFile('Transactions\\edit_transaction.html');
+    childWindow.loadFile('Transactions/edit_transaction.html');
     childWindow.openDevTools();
   })
 
@@ -51,7 +52,7 @@ app.on('ready', function() {
       modal: true,
     });
 
-    childWindow.loadFile('Layouts\\edit_category.html', {query: {pid: pid}});
+    childWindow.loadFile('Layouts/edit_category.html', {query: {pid: pid}});
     childWindow.openDevTools();
   })
 
@@ -73,7 +74,7 @@ app.on('ready', function() {
       modal: true,
     });
 
-    childWindow.loadFile('Layouts\\edit_balance_entry.html');
+    childWindow.loadFile('Layouts/edit_balance_entry.html');
     childWindow.openDevTools();
   })
 
@@ -95,7 +96,7 @@ app.on('ready', function() {
       modal: true,
     });
 
-    childWindow.loadFile('Layouts\\add_trade.html');
+    childWindow.loadFile('Layouts/add_trade.html');
     childWindow.openDevTools();
   })
 
