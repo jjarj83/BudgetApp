@@ -2,6 +2,8 @@ const { ipcRenderer } = require('electron')
 const Chart = require('chart.js')
 
 window.addEventListener('load', (event) => {
+  //console.log(ipcRenderer.remote.getGlobal('categories'));
+
   var $ = require('jquery');
   var mysql = require('mysql');
 
@@ -125,10 +127,10 @@ function loadSpendingLineChart(connection) {
 
 
 function loadBalancesGraph(connection) {
-  $query = `SELECT DATE_FORMAT(entry_date, '%m-%d-%Y') as entry_date, total
+  $query =  `SELECT DATE_FORMAT(entry_date, '%Y-%m-%d') as entry_date, total
             FROM balance_entries
-            WHERE entry_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-            ORDER BY entry_date`
+            WHERE entry_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+            ORDER BY entry_date`;
 
   connection.query($query, function(err, rows, fields) {
     if (err) {

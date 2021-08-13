@@ -59,7 +59,7 @@ exports.getCategories = function () {
       //console.log(parentCategories);
       resolve(parentCategories);
     });
-  })
+  });
 
 }
 

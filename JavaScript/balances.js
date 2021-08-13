@@ -1,61 +1,43 @@
 const { ipcRenderer } = require('electron')
+const balanceFunctions = require('../Server/balance_functions.js')
 
 window.addEventListener('load', (event) => {
   var $ = require('jquery');
-  var mysql = require('mysql');
 
   $(function() {
     $("#sidebar").load("sidebar.html");
   });
 
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'budget_app'
-  });
-
-  connection.connect(function(err) {
-    if (err) {
-      console.log(err.code);
-      console.log(err.fatal);
+  let balances = balanceFunctions.getBalances().then(
+    function (response) {
+      balances = response;
+      console.log(balances);
+      populateTable(balances);
+    },
+    function (error) {
+      console.log(error);
     }
-  });
+  );
 
-  getEntries(connection);
   document.getElementById('add-entry').addEventListener('click', addEntry);
 });
 
-function getEntries(connection) {
-  $query = `SELECT  date_format(be.entry_date, '%Y-%m-%d') as date, be.checking, be.savings,
-                    be.401K as fouronek, be.ira, be.hsa, be.other_investments, be.loans,
-                    be.credit_cards, be.total
-            FROM    balance_entries be
-            ORDER BY entry_date`;
-
-  connection.query($query, function(err, rows, fields) {
-    if (err) {
-      console.log("An error occured performing the query.");
-      console.log(err);
-      return;
-    }
-
-    var table = document.getElementById('table-body');
-    rows.forEach(function(row) {
-      var tableRow = table.insertRow();
-      tableRow.insertCell().innerHTML = row.date;
-      tableRow.insertCell().innerHTML = row.checking.toFixed(2);
-      tableRow.insertCell().innerHTML = row.savings.toFixed(2);
-      tableRow.insertCell().innerHTML = row.fouronek.toFixed(2);
-      tableRow.insertCell().innerHTML = row.ira.toFixed(2);
-      tableRow.insertCell().innerHTML = row.hsa.toFixed(2);
-      tableRow.insertCell().innerHTML = row.other_investments.toFixed(2);
-      tableRow.insertCell().innerHTML = '';
-      tableRow.insertCell().innerHTML = row.loans.toFixed(2);
-      tableRow.insertCell().innerHTML = row.credit_cards.toFixed(2);
-      tableRow.insertCell().innerHTML = '';
-      tableRow.insertCell().innerHTML = row.total.toFixed(2);
-    });
+function populateTable(balances) {
+  var table = document.getElementById('table-body');
+  balances.forEach(function(entry) {
+    var tableRow = table.insertRow();
+    tableRow.insertCell().innerHTML = entry.date;
+    tableRow.insertCell().innerHTML = entry.checking.toFixed(2);
+    tableRow.insertCell().innerHTML = entry.savings.toFixed(2);
+    tableRow.insertCell().innerHTML = entry.fouronek.toFixed(2);
+    tableRow.insertCell().innerHTML = entry.ira.toFixed(2);
+    tableRow.insertCell().innerHTML = entry.hsa.toFixed(2);
+    tableRow.insertCell().innerHTML = entry.other_investments.toFixed(2);
+    tableRow.insertCell().innerHTML = '';
+    tableRow.insertCell().innerHTML = entry.loans.toFixed(2);
+    tableRow.insertCell().innerHTML = entry.credit_cards.toFixed(2);
+    tableRow.insertCell().innerHTML = '';
+    tableRow.insertCell().innerHTML = entry.total.toFixed(2);
   });
 
 }

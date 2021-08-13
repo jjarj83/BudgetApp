@@ -1,29 +1,12 @@
 const { ipcRenderer } = require('electron')
-const mysql = require('mysql');
-
+const balanceFunctions = require('../Server/balance_functions.js')
 //document.getElementById('save-transaction').addEventListener("click", function() { addTransaction(); });
 
 window.addEventListener('load', (event) => {
-  var mysql = require('mysql');
-
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'budget_app'
-  });
-
-  connection.connect(function(err) {
-    if (err) {
-      console.log(err.code);
-      console.log(err.fatal);
-    }
-  });
-
-  document.getElementById('save-entry').addEventListener('click', function() { addEntry(connection); });
+  document.getElementById('save-entry').addEventListener('click', function() { addEntry(); });
 });
 
-function addEntry(connection) {
+function addEntry() {
   console.log("Here");
 
   var date = document.getElementById('entry-date').value;
@@ -40,20 +23,15 @@ function addEntry(connection) {
     var total = Number(checking) + Number(savings) + Number(fook) + Number(ira)
           + Number(hsa) + Number(oi) - Number(loans) - Number(cc);
 
-    $query = `insert into balance_entries(entry_date, checking, savings, 401k,
-                ira, hsa, other_investments, loans, credit_cards, total)
-              values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-    connection.query($query, [date, checking, savings, fook, ira, hsa, oi, loans, cc, total],
-      function(err, rows, fields) {
-      if (err) {
-        console.log("An error occured performing the query.");
-        console.log(err);
-        return;
+    balanceFunctions.addEntry(date, checking, savings, fook, ira, hsa, oi, loans, cc, total).then (
+      function (response) {
+        console.log(response);
+        ipcRenderer.send('close-editEntry')
+      },
+      function (error) {
+        console.log(error);
       }
-
-      ipcRenderer.send('close-editEntry')
-    });
+    );
   }
 }
 

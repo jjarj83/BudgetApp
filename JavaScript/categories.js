@@ -1,5 +1,5 @@
 const { ipcRenderer } = require('electron')
-const categoryFunctions = require('../Server/categoryFunctions.js');
+const categoryFunctions = require('../Server/category_functions.js');
 
 window.addEventListener('load', (event) => {
   var $ = require('jquery');
