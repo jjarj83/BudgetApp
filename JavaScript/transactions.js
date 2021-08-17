@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron')
+const categoryFunctions = require('../Server/category_functions.js')
+const transactionFunctions = require('../Server/transaction_functions.js')
 var count = 1; var reloadCount = 0;
-let mysql = require('mysql');
 let $ = require('jquery');
 
 window.addEventListener('load', (event) => {
@@ -8,102 +9,78 @@ window.addEventListener('load', (event) => {
     $("#sidebar").load("sidebar.html");
   })
 
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'budget_app'
-  });
-
-  connection.connect(function(err) {
-    if (err) {
-      console.log(err.code);
-      console.log(err.fatal);
+  let transactions = transactionFunctions.getTransactions().then(
+    function (response) {
+      transactions = response;
+      getTransactions(transactions);
+    },
+    function (error) {
+      console.log(error);
     }
-  });
+  );
 
-  getTransactions(connection);
-  document.getElementById('save-transactions').addEventListener("click", function() { addTransactions(connection); });
+  document.getElementById('save-transactions').addEventListener("click", function() { addTransactions(); });
 });
 
-function getTransactions(connection, $) {
-  $query = `SELECT  t.id, date_format(t.date, '%m-%d-%Y') as date, t.name, t.amount, c.name as category
-            FROM    transactions t, categories c
-            WHERE   t.category_id = c.id
-                    and t.date >= '2021-01-01'
-            ORDER BY t.date`;
-
-  connection.query($query, function(err, rows, fields) {
-    if (err) {
-      console.log("An error occured performing the query.");
-      console.log(err);
-      return;
-    }
-
-    var table = document.getElementById('table-body');
-    rows.forEach(function(row) {
-      var tableRow = table.insertRow();
-      tableRow.insertCell().innerHTML = row.date;
-      tableRow.insertCell().innerHTML = row.name;
-      tableRow.insertCell().innerHTML = row.amount.toFixed(2);
-      tableRow.insertCell().innerHTML = row.category;
-      var html = `<button id="edit__${row.id}" class="btn btn-default btn-sm"><i class ="fas fa-edit"></i></button>
-                  <button id="delete__${row.id}" class="btn btn-default btn-sm"><i class ="fas fa-trash-alt"></i></button>`;
-      tableRow.insertCell().innerHTML = html;
-    });
-
+function getTransactions(transactions) {
+  var table = document.getElementById('table-body');
+  transactions.forEach(function(transaction) {
     var tableRow = table.insertRow();
-    tableRow.setAttribute("name", "add-row");
-    tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="transaction-date-${count}"/>`;
-    tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="transaction-name-${count}"/>`;
-    tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="transaction-amount-${count}"/>`;
-    var html = `<select class="custom-select custom-select-sm" id="transaction-category-${count}">
-                  <option value=0>--Category--</option>
-                  <optgroup id="parent-category-${count}" label="parentCategories"></optgroup>
-                  <optgroup id="sub-category-${count}" label="subCategories"></optgroup>
-                </select>`;
+    tableRow.insertCell().innerHTML = transaction.date;
+    tableRow.insertCell().innerHTML = transaction.name;
+    tableRow.insertCell().innerHTML = transaction.amount.toFixed(2);
+    tableRow.insertCell().innerHTML = transaction.category;
+    var html = `<button id="edit__${transaction.id}" class="btn btn-default btn-sm"><i class ="fas fa-edit"></i></button>
+                <button id="delete__${transaction.id}" class="btn btn-default btn-sm"><i class ="fas fa-trash-alt"></i></button>`;
     tableRow.insertCell().innerHTML = html;
-    document.getElementById(`transaction-category-${count}`).addEventListener("change", function() { addRow(connection); });
-    tableRow.insertCell();
-    populateCategories(connection);
   });
 
+  var tableRow = table.insertRow();
+  tableRow.setAttribute("name", "add-row");
+  tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="transaction-date-${count}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="transaction-name-${count}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="transaction-amount-${count}"/>`;
+  var html = `<select class="custom-select custom-select-sm" id="transaction-category-${count}">
+                <option value=0>--Category--</option>
+                <optgroup id="parent-category-${count}" label="parentCategories"></optgroup>
+                <optgroup id="sub-category-${count}" label="subCategories"></optgroup>
+              </select>`;
+  tableRow.insertCell().innerHTML = html;
+  document.getElementById(`transaction-category-${count}`).addEventListener("change", function() { addRow(); });
+  tableRow.insertCell();
+  populateCategories();
 }
 
-function populateCategories(connection) {
-  $query = `SELECT c.id, c.name, c.parent_category_id
-	          FROM categories c`;
+function populateCategories() {
+  let categories = categoryFunctions.getCategoriesNoStats().then(
+    function (response) {
+      categories = response;
 
-  connection.query($query, function(err, rows, fields) {
-    if (err) {
-      console.log("An error occured performing the query.");
-      console.log(err);
-      return;
+      var html = "";
+      categories.forEach(function(category) {
+        if (!category.pid) {
+          html += `<option value="${category.id}">${category.name}</option>`;
+        }
+      });
+      document.getElementById(`parent-category-${count}`).innerHTML = html;
+
+      html = "";
+      categories.forEach(function(category) {
+        if (category.pid) {
+          html += `<option value="${category.id}">${category.name}</option>`;
+        }
+      });
+      document.getElementById(`sub-category-${count}`).innerHTML = html;
+    },
+    function (error) {
+      console.log(error);
     }
-
-    var html = "";
-    rows.forEach(function(row) {
-      if (!row.parent_category_id) {
-        html += `<option value="${row.id}">${row.name}</option>`;
-      }
-    });
-    document.getElementById(`parent-category-${count}`).innerHTML = html;
-
-    html = "";
-    rows.forEach(function(row) {
-      if (row.parent_category_id) {
-        html += `<option value="${row.id}">${row.name}</option>`;
-      }
-    });
-    document.getElementById(`sub-category-${count}`).innerHTML = html;
-  });
-
-
+  );
 }
 
 //fix
-function addRow(connection) {
-  document.getElementById(`transaction-date-${count}`).removeEventListener("change", function() { addRow(connection); });
+function addRow() {
+  document.getElementById(`transaction-date-${count}`).removeEventListener("change", function() { addRow(); });
   count++;
   console.log(count);
 
@@ -119,13 +96,13 @@ function addRow(connection) {
                 <optgroup id="sub-category-${count}" label="subCategories"></optgroup>
               </select>`;
   tableRow.insertCell().innerHTML = html;
-  document.getElementById(`transaction-category-${count}`).addEventListener("change", function() { addRow(connection); });
+  document.getElementById(`transaction-category-${count}`).addEventListener("change", function() { addRow(); });
   tableRow.insertCell();
-  populateCategories(connection);
+  populateCategories();
 }
 
 
-function addTransactions(connection) {
+function addTransactions() {
   var elements = document.getElementsByName("add-row");
   var i = 1;
   elements.forEach(function(e) {
@@ -135,27 +112,23 @@ function addTransactions(connection) {
     var category = document.getElementById(`transaction-category-${i}`).value;
     i++;
 
-    console.log(date, name, amount, category);
+    if (validateTransaction(name, date, amount, category)) {
 
-    if (validateTransaction(date, name, amount, category)) {
-      //console.log("Here");
-      $query = `call add_transaction(?, ?, ?, ?)`;
-
-      connection.query($query, [name, date, amount, category], function(err, rows, fields) {
-        if (err) {
-          console.log("An error occured performing the query.");
-          console.log(err);
-          return;
-        } else {
-          console.log("Success");
+      transactionFunctions.addTransaction(name, date, amount, category).then(
+        function (response) {
+          console.log(response);
           reload();
+        },
+        function (error) {
+          console.log(error);
+          return;
         }
-      });
+      )
     } else {
       reload();
     }
   });
-  //console.log("Here");
+
 
 }
 

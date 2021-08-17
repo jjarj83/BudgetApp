@@ -64,23 +64,34 @@ exports.getCategories = function () {
 }
 
 
-exports.addCategory = function (name, pid, color) {
-
+exports.getCategoriesNoStats = function () {
   return new Promise(function (resolve, reject) {
-    var connection = mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: 'password',
-      database: 'budget_app'
-    });
+    $query = `SELECT c.id, c.name, c.parent_category_id
+              FROM categories c`;
 
-    connection.connect(function(err) {
+    connection.query($query, function (err, rows, fields) {
       if (err) {
-        console.log(err.code);
-        console.log(err.fatal);
+        reject(err);
       }
-    });
 
+      var categories = [];
+      rows.forEach(function(row) {
+        let category = {
+          id: row.id,
+          name: row.name,
+          pid: row.parent_category_id
+        }
+        categories.push(category);
+      });
+
+      resolve(categories);
+    });
+  });
+}
+
+
+exports.addCategory = function (name, pid, color) {
+  return new Promise(function (resolve, reject) {
     $query = `insert into categories (name, parent_category_id, color)
                  values (?, ?, ?);`
 
