@@ -1,75 +1,63 @@
 const { ipcRenderer } = require('electron')
+const portfolioFunctions = require('../Server/portfolio_functions.js')
 
 window.addEventListener('load', (event) => {
   var $ = require('jquery');
-  var mysql = require('mysql');
 
   $(function() {
     $("#sidebar").load("sidebar.html");
   });
 
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'budget_app'
-  });
-
-  connection.connect(function(err) {
-    if (err) {
-      console.log(err.code);
-      console.log(err.fatal);
+  let positions = portfolioFunctions.getPositions().then(
+    function (response) {
+      positions = response;
+      positions.forEach(function(position) {
+        getPrice(position);
+      });
+    },
+    function (error) {
+      console.log(error);
     }
-  });
+  );
 
-  getPositions(connection);
   document.getElementById('new-trade').addEventListener('click', function() { addTrade(); });
 });
 
 
-function getPositions(connection) {
-  $query = `SELECT p.ticker, p.shares, p.avg_cost
-            FROM positions p
-            WHERE p.shares > 0`;
+function getPrice(position) {
 
-  connection.query($query, function(err, rows, fields) {
-    if (err) {
-      console.log("An error occured performing the query.");
-      console.log(err);
-      return;
-    }
-
-    rows.forEach(function(row) {
-      fetch(`https://financialmodelingprep.com/api/v3/quote/${row.ticker}?apikey=a33d6a7f9b717b8524e76aa0418eb34b`)
-        .then(function(response) {
-          response.json().then(function(data) {
-            console.log(data);
-            addRow(row, data[0].price);
-          });
-        })
-        .catch(function(err) {
-          console.log(err);
-        });
+  fetch(`https://financialmodelingprep.com/api/v3/quote/${position.ticker}?apikey=a33d6a7f9b717b8524e76aa0418eb34b`)
+    .then(function(response) {
+      response.json().then(function(data) {
+        console.log(data);
+        if (!data[0].price) {
+          getPrice(position);
+        }
+        addRow(position, data[0].price);
+      });
+    })
+    .catch(function(err) {
+      console.log("Error:", err);
     });
 
-  });
 }
 
 
-function addRow(row, price) {
-  var balance = row.shares * price;
-  var growth = balance - (row.avg_cost * row.shares);
-  var pctChange = ((price - row.avg_cost) / row.avg_cost) * 100;
+function addRow(position, price) {
+  var balance = position.shares * price;
+  var growth = balance - (position.avg_cost * position.shares);
+  var pctChange = ((price - position.avg_cost) / position.avg_cost) * 100;
+
   var table = document.getElementById('table-body');
-  var tableRow = table.insertRow();
-  tableRow.insertCell().innerHTML = row.ticker;
-  tableRow.insertCell().innerHTML = row.shares.toFixed(2);
-  tableRow.insertCell().innerHTML = balance.toFixed(2);
-  tableRow.insertCell().innerHTML = price.toFixed(2);
-  tableRow.insertCell().innerHTML = row.avg_cost.toFixed(2);
-  tableRow.insertCell().innerHTML = growth.toFixed(2);
-  tableRow.insertCell().innerHTML = pctChange.toFixed(2);
-  tableRow.insertCell();
+  var row = table.insertRow();
+  row.insertCell().innerHTML = position.ticker;
+  row.insertCell().innerHTML = position.shares.toFixed(2);
+  row.insertCell().innerHTML = balance.toFixed(2);
+  row.insertCell().innerHTML = price.toFixed(2);
+  row.insertCell().innerHTML = position.avg_cost.toFixed(2);
+  row.insertCell().innerHTML = growth.toFixed(2);
+  row.insertCell().innerHTML = pctChange.toFixed(2);
+  row.insertCell();
 }
 
 

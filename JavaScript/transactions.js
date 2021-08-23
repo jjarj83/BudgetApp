@@ -12,6 +12,7 @@ window.addEventListener('load', (event) => {
   let transactions = transactionFunctions.getTransactions().then(
     function (response) {
       transactions = response;
+      console.log(transactions);
       getTransactions(transactions);
     },
     function (error) {

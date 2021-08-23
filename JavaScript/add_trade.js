@@ -1,29 +1,20 @@
 const { ipcRenderer } = require('electron')
-const mysql = require('mysql');
-
-//document.getElementById('save-transaction').addEventListener("click", function() { addTransaction(); });
+const portfolioFunctions = require('../Server/portfolio_functions.js')
 
 window.addEventListener('load', (event) => {
-  var mysql = require('mysql');
-
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'budget_app'
-  });
-
-  connection.connect(function(err) {
-    if (err) {
-      console.log(err.code);
-      console.log(err.fatal);
+  let tickers = portfolioFunctions.getTickers().then(
+    function (response) {
+      tickers = response;
+    },
+    function (error) {
+      console.log(error);
     }
-  });
+  );
 
-  document.getElementById('save-trade').addEventListener('click', function() { addTrade(connection); });
+  document.getElementById('save-trade').addEventListener('click', function() { addTrade(tickers); });
 });
 
-function addTrade(connection) {
+function addTrade(tickers) {
   document.getElementById('buy-sell').classList.remove("is-invalid");
   document.getElementById('ticker-symbol').classList.remove("is-invalid");
   document.getElementById('share-count').classList.remove("is-invalid");
@@ -39,74 +30,28 @@ function addTrade(connection) {
        shares = -shares;
     }
 
-    $query = `SELECT p.ticker, p.avg_cost, p.shares FROM positions p`;
-
-    var positions = {};
-    connection.query($query, function(err, rows, fields) {
-      if (err) {
-        console.log("An error occured performing the query.");
-        console.log(err);
-        return;
-      }
-
-      rows.forEach(function(row) {
-        let position = {
-          avgCost: row.avg_cost,
-          shares: row.shares
-        }
-        positions[row.ticker] = position;
-      });
-
-      console.log(positions);
-      if (positions[ticker]) {
-        console.log("Exists");
-        //convert values to numbers
-        console.log(positions[ticker].shares);
-        var newShares = positions[ticker].shares + Number(shares);
-        console.log(newShares);
-        console.log("Original Shares", positions[ticker].shares);
-        console.log("Original Avg", positions[ticker].avgCost);
-        console.log("New Shares", Number(shares));
-        console.log("Sale Price", Number(salePrice));
-        var avgCost = (positions[ticker].shares * positions[ticker].avgCost + Number(shares) * Number(salePrice)) / Number(newShares);
-        console.log(ticker, newShares, avgCost);
-
-
-        $query = `update positions
-                  set shares = ?, avg_cost = ?
-                  where ticker = ?`
-
-        connection.query($query, [newShares, avgCost, ticker],
-          function(err, rows, fields) {
-          if (err) {
-            console.log("An error occured performing the query.");
-            console.log(err);
-            return;
-          }
-
-          ipcRenderer.send('close-addTrade')
-        });
-
-      } else {
-        console.log("New");
-
-        $query = `insert into positions(ticker, shares, avg_cost)
-                  values (?, ?, ?)`;
-
-        connection.query($query, [ticker, shares, salePrice],
-          function(err, rows, fields) {
-          if (err) {
-            console.log("An error occured performing the query.");
-            console.log(err);
-            return;
-          }
-
+    if (tickers.includes(ticker)) {
+      portfolioFunctions.updatePosition(ticker, shares, salePrice).then(
+        function (response) {
           ipcRenderer.send('close-addTrade');
-        });
-      }
-    })
+        },
+        function (error) {
+          console.log(error);
+        }
+      );
 
+    } else {
+      portfolioFunctions.newPosition(ticker, shares, salePrice).then(
+        function (response) {
+          ipcRenderer.send('close-addTrade');
+        },
+        function (error) {
+          console.log(error);
+        }
+      );
+    }
   }
+
 }
 
 function validateEntry(transaction_type, ticker, shares, salePrice) {
