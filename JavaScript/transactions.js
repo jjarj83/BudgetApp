@@ -1,8 +1,8 @@
 const { ipcRenderer } = require('electron')
-const categoryFunctions = require('../Server/category_functions.js')
-const transactionFunctions = require('../Server/transaction_functions.js')
+const categoryFunctions = require('../Server_Functions/category_functions.js')
+const transactionFunctions = require('../Server_Functions/transaction_functions.js')
 const csv = require('jquery-csv')
-var count = 1; var reloadCount = 0;
+var count = 1;
 let $ = require('jquery');
 
 window.addEventListener('load', (event) => {
@@ -33,7 +33,15 @@ function getTransactions(transactions) {
     tableRow.insertCell().innerHTML = transaction.date;
     tableRow.insertCell().innerHTML = transaction.name;
     tableRow.insertCell().innerHTML = transaction.amount.toFixed(2);
-    tableRow.insertCell().innerHTML = transaction.category;
+
+    if (transaction.parentCategory) {
+      tableRow.insertCell().innerHTML = transaction.parentCategory;
+      tableRow.insertCell().innerHTML = transaction.category;
+    } else {
+      tableRow.insertCell().innerHTML = transaction.category;
+      tableRow.insertCell();
+    }
+
     var html = `<button id="edit__${transaction.id}" class="btn btn-default btn-sm"><i class ="fas fa-edit"></i></button>
                 <button id="delete__${transaction.id}" class="btn btn-default btn-sm"><i class ="fas fa-trash-alt"></i></button>`;
     tableRow.insertCell().innerHTML = html;
@@ -44,38 +52,33 @@ function getTransactions(transactions) {
   tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="transaction-date-${count}"/>`;
   tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="transaction-name-${count}"/>`;
   tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="transaction-amount-${count}"/>`;
-  var html = `<select class="custom-select custom-select-sm" id="transaction-category-${count}">
-                <option value=0>--Category--</option>
-                <optgroup id="parent-category-${count}" label="parentCategories"></optgroup>
-                <optgroup id="sub-category-${count}" label="subCategories"></optgroup>
+
+  var html = `<select class="custom-select custom-select-sm" id="parent-category-${count}">
+                <option value=0>--Parent Category--</option>
               </select>`;
   tableRow.insertCell().innerHTML = html;
-  document.getElementById(`transaction-category-${count}`).addEventListener("change", function() { addRow(); });
+
+  html = `<select class="custom-select custom-select-sm" id="sub-category-${count}">
+            <option value=0>--Sub Category--</option>
+          </select>`;
+  tableRow.insertCell().innerHTML = html;
+
+  document.getElementById(`parent-category-${count}`).addEventListener("change", function() { populateSubCategories(this); addRow(); });
   tableRow.insertCell();
-  populateCategories();
+  populateParentCategories();
 }
 
 
-function populateCategories() {
-  let categories = categoryFunctions.getCategoriesNoStats().then(
+function populateParentCategories() {
+  let categories = categoryFunctions.getParentCategoriesNoStats().then(
     function (response) {
       categories = response;
 
       var html = "";
       categories.forEach(function(category) {
-        if (!category.pid) {
-          html += `<option value="${category.id}">${category.name}</option>`;
-        }
+        html += `<option value="${category.id}">${category.name}</option>`;
       });
-      document.getElementById(`parent-category-${count}`).innerHTML = html;
-
-      html = "";
-      categories.forEach(function(category) {
-        if (category.pid) {
-          html += `<option value="${category.id}">${category.name}</option>`;
-        }
-      });
-      document.getElementById(`sub-category-${count}`).innerHTML = html;
+      document.getElementById(`parent-category-${count}`).innerHTML += html;
     },
     function (error) {
       console.log(error);
@@ -83,9 +86,31 @@ function populateCategories() {
   );
 }
 
+
+function populateSubCategories(element) {
+  var num = element.id.split('-')[2];
+  console.log(num);
+  let categories = categoryFunctions.getSubCategoriesNoStats(element.value).then(
+    function (response) {
+      categories = response;
+
+      var html = "";
+      categories.forEach(function(category) {
+        html += `<option value="${category.id}">${category.name}</option>`;
+      });
+      document.getElementById(`sub-category-${num}`).innerHTML += html;
+    },
+    function (error) {
+      console.log(error);
+    }
+  );
+
+}
+
+
 //fix
 function addRow() {
-  document.getElementById(`transaction-date-${count}`).removeEventListener("change", function() { addRow(); });
+  document.getElementById(`transaction-date-${count}`).removeEventListener("change", function() { populateSubCategories(this); addRow(); });
   count++;
   console.log(count);
 
@@ -95,44 +120,53 @@ function addRow() {
   tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="transaction-date-${count}"/>`;
   tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="transaction-name-${count}"/>`;
   tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="transaction-amount-${count}"/>`;
-  var html = `<select class="custom-select custom-select-sm" id="transaction-category-${count}" type="text" class="form-control">
-                <option value=0>--Category--</option>
-                <optgroup id="parent-category-${count}" label="parentCategories"></optgroup>
-                <optgroup id="sub-category-${count}" label="subCategories"></optgroup>
+
+  var html = `<select class="custom-select custom-select-sm" id="parent-category-${count}">
+                <option value=0>--Parent Category--</option>
               </select>`;
   tableRow.insertCell().innerHTML = html;
-  document.getElementById(`transaction-category-${count}`).addEventListener("change", function() { addRow(); });
+
+  html = `<select class="custom-select custom-select-sm" id="sub-category-${count}">
+            <option value=0>--Sub Category--</option>
+          </select>`;
+  tableRow.insertCell().innerHTML = html;
+
+  document.getElementById(`parent-category-${count}`).addEventListener("change", function() { populateSubCategories(this); addRow(); });
   tableRow.insertCell();
-  populateCategories();
+  populateParentCategories();
 }
 
 
 function addTransactions() {
   var elements = document.getElementsByName("add-row");
+  var transactionsArray = [];
   var i = 1;
+
   elements.forEach(function(e) {
     var date = document.getElementById(`transaction-date-${i}`).value;
     var name = document.getElementById(`transaction-name-${i}`).value;
     var amount = document.getElementById(`transaction-amount-${i}`).value;
-    var category = document.getElementById(`transaction-category-${i}`).value;
+    var parentCategory = document.getElementById(`parent-category-${i}`).value;
+    var subCategory = document.getElementById(`sub-category-${i}`).value;
     i++;
 
-    if (validateTransaction(name, date, amount, category)) {
-
-      transactionFunctions.addTransaction(name, date, amount, category).then(
-        function (response) {
-          console.log(response);
-          reload();
-        },
-        function (error) {
-          console.log(error);
-          return;
-        }
-      )
-    } else {
-      reload();
+    if (validateTransaction(name, date, amount, parentCategory)) {
+      var category = parentCategory;
+      if (subCategory != 0 ) { category = subCategory; }
+      let transactionArray = [name, date, amount, category];
+      transactionsArray.push(transactionArray);
     }
+
   });
+
+  transactionFunctions.bulkAddTransactions(transactionsArray).then(
+    function (response) {
+      ipcRenderer.send('reload-transaction');
+    },
+    function (error) {
+      console.log(error);
+    }
+  );
 }
 
 
@@ -179,7 +213,6 @@ function readFile() {
 
 function bulkAdd(newTransactions, categoriesHash) {
   var transactionsArray = [];
-
   newTransactions.forEach(function(newTransaction) {
 
     if (newTransaction[3] in categoriesHash) {
@@ -209,14 +242,4 @@ function bulkAdd(newTransactions, categoriesHash) {
     }
   );
 
-}
-
-
-function reload() {
-  reloadCount++;
-  console.log(reloadCount);
-  if (reloadCount === count) {
-    console.log("Reload");
-    ipcRenderer.send('reload-transaction');
-  }
 }

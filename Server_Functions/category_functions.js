@@ -64,10 +64,12 @@ exports.getCategories = function () {
 }
 
 
-exports.getCategoriesNoStats = function () {
+exports.getParentCategoriesNoStats = function () {
   return new Promise(function (resolve, reject) {
-    $query = `SELECT c.id, c.name, c.parent_category_id
-              FROM categories c`;
+    $query = `SELECT c.id, c.name
+              FROM categories c
+              WHERE c.parent_category_id is NULL
+              ORDER BY c.name`;
 
     connection.query($query, function (err, rows, fields) {
       if (err) {
@@ -79,7 +81,33 @@ exports.getCategoriesNoStats = function () {
         let category = {
           id: row.id,
           name: row.name,
-          pid: row.parent_category_id
+        }
+        categories.push(category);
+      });
+
+      resolve(categories);
+    });
+  });
+}
+
+
+exports.getSubCategoriesNoStats = function (pid) {
+  return new Promise(function (resolve, reject) {
+    $query = `SELECT c.id, c.name
+              FROM categories c
+              WHERE c.parent_category_id = ?
+              ORDER BY c.name`;
+
+    connection.query($query, [pid], function (err, rows, fields) {
+      if (err) {
+        reject(err);
+      }
+
+      var categories = [];
+      rows.forEach(function(row) {
+        let category = {
+          id: row.id,
+          name: row.name,
         }
         categories.push(category);
       });
@@ -138,11 +166,3 @@ exports.addCategory = function (name, pid, color) {
   });
 
 }
-
-/*
-function getChildren(pid) = {
-  return new Promise(function (resolve, reject) {
-
-  });
-}
-*/

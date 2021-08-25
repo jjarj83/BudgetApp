@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron')
 const querystring = require('querystring')
-const categoryFunctions = require('../Server/category_functions.js');
+const categoryFunctions = require('../Server_Functions/category_functions.js');
 
 let query = querystring.parse(global.location.search);
 let pid = query['?pid'];

@@ -1,5 +1,5 @@
 const { ipcRenderer } = require('electron')
-const balanceFunctions = require('../Server/balance_functions.js')
+const balanceFunctions = require('../Server_Functions/balance_functions.js')
 //document.getElementById('save-transaction').addEventListener("click", function() { addTransaction(); });
 
 window.addEventListener('load', (event) => {

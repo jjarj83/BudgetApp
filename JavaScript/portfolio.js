@@ -1,5 +1,5 @@
 const { ipcRenderer } = require('electron')
-const portfolioFunctions = require('../Server/portfolio_functions.js')
+const portfolioFunctions = require('../Server_Functions/portfolio_functions.js')
 
 window.addEventListener('load', (event) => {
   var $ = require('jquery');

@@ -16,10 +16,10 @@ connection.connect(function(err) {
 
 exports.getTransactions = function() {
   return new Promise(function (resolve, reject) {
-    $query = `SELECT  t.id, date_format(t.date, '%m-%d-%Y') as date, t.name, t.amount, c.name as category
-              FROM    transactions t, categories c
-              WHERE   t.category_id = c.id
-                      and t.date >= '2021-01-01'
+    $query = `SELECT  t.id, date_format(t.date, '%m-%d-%Y') as date, t.name, t.amount, c1.name as category, c2.name as parent_category
+              FROM    transactions t, categories c1 LEFT OUTER JOIN categories c2 ON c1.parent_category_id = c2.id
+              WHERE   t.category_id = c1.id
+	                    and t.date >= '2021-01-01'
               ORDER BY t.date`;
 
     connection.query($query, function(err, rows, fields) {
@@ -34,7 +34,8 @@ exports.getTransactions = function() {
           date: row.date,
           name: row.name,
           amount: row.amount,
-          category: row.category
+          category: row.category,
+          parentCategory: row.parent_category
         };
         transactions.push(transaction);
       });
