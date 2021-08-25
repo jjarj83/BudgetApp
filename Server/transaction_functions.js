@@ -46,12 +46,27 @@ exports.getTransactions = function() {
 
 
 exports.addTransaction = function(name, date, amount, category) {
-  
+
   return new Promise(function (resolve, reject) {
     $query = `call add_transaction(?, ?, ?, ?)`;
 
     connection.query($query, [name, date, amount, category],
       function(err, rows, fields) {
+      if (err) {
+        reject(err);
+      }
+      resolve("Success");
+    });
+  });
+}
+
+
+exports.bulkAddTransactions = function(transactionsArray) {
+  return new Promise(function (resolve, reject) {
+    $query = `INSERT INTO transactions(name, date, amount, category_id)
+              VALUES ?`;
+
+    connection.query($query, [transactionsArray], function(err) {
       if (err) {
         reject(err);
       }

@@ -90,6 +90,39 @@ exports.getCategoriesNoStats = function () {
 }
 
 
+exports.getCategoriesHash = function() {
+  return new Promise(function (resolve, reject) {
+    $query = `SELECT c1.id, c1.name, c1.parent_category_id, c2.name as parent_name
+              FROM categories c1 LEFT OUTER JOIN categories c2 ON c1.parent_category_id = c2.id`;
+
+    connection.query($query, function (err, rows, fields) {
+      if (err) {
+        reject(err);
+      }
+
+      var categoriesHash = {};
+      rows.forEach(function(row) {
+        if (!row.parent_category_id) {
+          let parentCategory = {
+            id: row.id,
+            children: {}
+          }
+          categoriesHash[row.name] = parentCategory;
+        }
+      });
+
+      rows.forEach(function(row) {
+        if (row.parent_category_id) {
+          categoriesHash[row.parent_name].children[row.name] = row.id;
+        }
+      })
+
+      resolve(categoriesHash);
+    });
+  })
+}
+
+
 exports.addCategory = function (name, pid, color) {
   return new Promise(function (resolve, reject) {
     $query = `insert into categories (name, parent_category_id, color)
@@ -105,3 +138,11 @@ exports.addCategory = function (name, pid, color) {
   });
 
 }
+
+/*
+function getChildren(pid) = {
+  return new Promise(function (resolve, reject) {
+
+  });
+}
+*/

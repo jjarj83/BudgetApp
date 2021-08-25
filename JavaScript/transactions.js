@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron')
 const categoryFunctions = require('../Server/category_functions.js')
 const transactionFunctions = require('../Server/transaction_functions.js')
+const csv = require('jquery-csv')
 var count = 1; var reloadCount = 0;
 let $ = require('jquery');
 
@@ -21,6 +22,8 @@ window.addEventListener('load', (event) => {
   );
 
   document.getElementById('save-transactions').addEventListener("click", function() { addTransactions(); });
+  document.getElementById('file-upload').addEventListener("click", function() { readFile(); });
+  document.getElementById('file-select').addEventListener("input", function() { updateLabel(); });
 });
 
 function getTransactions(transactions) {
@@ -51,6 +54,7 @@ function getTransactions(transactions) {
   tableRow.insertCell();
   populateCategories();
 }
+
 
 function populateCategories() {
   let categories = categoryFunctions.getCategoriesNoStats().then(
@@ -129,9 +133,8 @@ function addTransactions() {
       reload();
     }
   });
-
-
 }
+
 
 function validateTransaction(date, name, amount, category) {
   if (date === "" || name === "" || amount === "" || category === "") {
@@ -140,6 +143,74 @@ function validateTransaction(date, name, amount, category) {
 
   return true;
 }
+
+
+function updateLabel() {
+  var file = document.getElementById('file-select').files[0].name;
+  console.log(file);
+  document.getElementById('file-label').innerHTML = file;
+}
+
+
+function readFile() {
+  var fileInput = document.getElementById('file-select');
+  var file = fileInput.files[0];
+
+  var reader = new FileReader();
+  reader.readAsText(file);
+  reader.onload = function(event) {
+
+    var csvFile = event.target.result;
+    var newTransactions = csv.toArrays(csvFile);
+    console.log(newTransactions);
+
+    let categoriesHash = categoryFunctions.getCategoriesHash().then(
+      function (response) {
+        categoriesHash = response;
+        bulkAdd(newTransactions, categoriesHash);
+      },
+      function (error) {
+        console.log(error);
+      }
+    );
+  }
+}
+
+
+function bulkAdd(newTransactions, categoriesHash) {
+  var transactionsArray = [];
+
+  newTransactions.forEach(function(newTransaction) {
+
+    if (newTransaction[3] in categoriesHash) {
+      var id = categoriesHash[newTransaction[3]].id;
+      var children = categoriesHash[newTransaction[3]].children;
+
+      if (newTransaction[4] && newTransaction[4] in categoriesHash[newTransaction[3]].children) {
+        id = categoriesHash[newTransaction[3]].children[newTransaction[4]];
+      }
+
+      var date = new Date(newTransaction[0]).toLocaleDateString('fr-CA');
+      var transactionArray = [newTransaction[1], date, newTransaction[2], id];
+      transactionsArray.push(transactionArray);
+
+    } else {
+      console.log(newTransaction[3], "does not exist");
+    }
+
+  });
+
+  transactionFunctions.bulkAddTransactions(transactionsArray).then(
+    function (response) {
+      ipcRenderer.send('reload-transaction');
+    },
+    function (error) {
+      console.log(error);
+    }
+  );
+
+}
+
 
 function reload() {
   reloadCount++;
