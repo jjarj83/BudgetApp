@@ -46,22 +46,6 @@ exports.getTransactions = function() {
 }
 
 
-exports.addTransaction = function(name, date, amount, category) {
-
-  return new Promise(function (resolve, reject) {
-    $query = `call add_transaction(?, ?, ?, ?)`;
-
-    connection.query($query, [name, date, amount, category],
-      function(err, rows, fields) {
-      if (err) {
-        reject(err);
-      }
-      resolve("Success");
-    });
-  });
-}
-
-
 exports.bulkAddTransactions = function(transactionsArray) {
   return new Promise(function (resolve, reject) {
     $query = `INSERT INTO transactions(name, date, amount, category_id)
@@ -82,6 +66,48 @@ exports.removeTransaction = function(transactionId) {
     $query = `DELETE FROM transactions WHERE id = ?`;
 
     connection.query($query, [transactionId], function(err) {
+      if (err) {
+        reject(err);
+      }
+      resolve("Success");
+    });
+  });
+}
+
+
+exports.getIncomes = function() {
+  return new Promise(function (resolve, reject) {
+    $query = `SELECT i.id, date_format(i.date, '%m-%d-%Y') as date, i.name, i.amount
+              FROM incomes i`,
+
+    connection.query($query, function(err, rows, fields) {
+      if (err) {
+        reject(err);
+      }
+
+      var incomes = [];
+      rows.forEach(function(row) {
+        let income = {
+          id: row.id,
+          date: row.date,
+          name: row.name,
+          amount: row.amount,
+        };
+        incomes.push(income);
+      });
+
+      resolve(incomes);
+    });
+  });
+}
+
+
+exports.bulkAddIncomes = function(incomesArray) {
+  return new Promise(function (resolve, reject) {
+    $query = `INSERT INTO incomes(name, date, amount)
+              VALUES ?`;
+
+    connection.query($query, [incomesArray], function(err) {
       if (err) {
         reject(err);
       }

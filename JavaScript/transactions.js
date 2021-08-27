@@ -2,7 +2,7 @@ const { ipcRenderer } = require('electron')
 const categoryFunctions = require('../Server_Functions/category_functions.js')
 const transactionFunctions = require('../Server_Functions/transaction_functions.js')
 const csv = require('jquery-csv')
-var count = 1;
+var transactionCount = 1; var incomeCount = 1;
 let $ = require('jquery');
 
 window.addEventListener('load', (event) => {
@@ -21,14 +21,26 @@ window.addEventListener('load', (event) => {
     }
   );
 
+  let incomes = transactionFunctions.getIncomes().then(
+    function (response) {
+      incomes = response;
+      console.log(incomes);
+      getIncomes(incomes);
+    },
+    function (error) {
+      console.log(error);
+    }
+  );
+
   document.getElementById('save-transactions').addEventListener("click", function() { addTransactions(); });
+  document.getElementById('save-incomes').addEventListener("click", function() { addIncomes(); });
   document.getElementById('file-upload').addEventListener("click", function() { readFile(); });
   document.getElementById('file-select').addEventListener("input", function() { updateLabel(); });
 });
 
 
 function getTransactions(transactions) {
-  var table = document.getElementById('table-body');
+  var table = document.getElementById('transaction-table-body');
   transactions.forEach(function(transaction) {
     var tableRow = table.insertRow();
     tableRow.insertCell().innerHTML = transaction.date;
@@ -50,22 +62,22 @@ function getTransactions(transactions) {
   });
 
   var tableRow = table.insertRow();
-  tableRow.setAttribute("name", "add-row");
-  tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="transaction-date-${count}"/>`;
-  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="transaction-name-${count}"/>`;
-  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="transaction-amount-${count}"/>`;
+  tableRow.setAttribute("name", "add-transaction-row");
+  tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="transaction-date-${transactionCount}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="transaction-name-${transactionCount}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="transaction-amount-${transactionCount}"/>`;
 
-  var html = `<select class="custom-select custom-select-sm" id="parent-category-${count}">
+  var html = `<select class="custom-select custom-select-sm" id="parent-category-${transactionCount}">
                 <option value=0>--Parent Category--</option>
               </select>`;
   tableRow.insertCell().innerHTML = html;
 
-  html = `<select class="custom-select custom-select-sm" id="sub-category-${count}">
+  html = `<select class="custom-select custom-select-sm" id="sub-category-${transactionCount}">
             <option value=0>--Sub Category--</option>
           </select>`;
   tableRow.insertCell().innerHTML = html;
 
-  document.getElementById(`parent-category-${count}`).addEventListener("change", function() { populateSubCategories(this); addRow(); });
+  document.getElementById(`parent-category-${transactionCount}`).addEventListener("change", function() { populateSubCategories(this); addTransactionRow(); });
   tableRow.insertCell();
   populateParentCategories();
 }
@@ -80,7 +92,7 @@ function populateParentCategories() {
       categories.forEach(function(category) {
         html += `<option value="${category.id}">${category.name}</option>`;
       });
-      document.getElementById(`parent-category-${count}`).innerHTML += html;
+      document.getElementById(`parent-category-${transactionCount}`).innerHTML += html;
     },
     function (error) {
       console.log(error);
@@ -111,36 +123,36 @@ function populateSubCategories(element) {
 
 
 //fix
-function addRow() {
-  document.getElementById(`transaction-date-${count}`).removeEventListener("change", function() { populateSubCategories(this); addRow(); });
-  count++;
-  console.log(count);
+function addTransactionRow() {
+  document.getElementById(`parent-category-${transactionCount}`).removeEventListener("change", function() { populateSubCategories(this); addTransactionRow(); });
+  transactionCount++;
+  console.log(transactionCount);
 
-  var table = document.getElementById('table-body');
+  var table = document.getElementById('transaction-table-body');
   var tableRow = table.insertRow();
-  tableRow.setAttribute("name", "add-row");
-  tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="transaction-date-${count}"/>`;
-  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="transaction-name-${count}"/>`;
-  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="transaction-amount-${count}"/>`;
+  tableRow.setAttribute("name", "add-transaction-row");
+  tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="transaction-date-${transactionCount}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="transaction-name-${transactionCount}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="transaction-amount-${transactionCount}"/>`;
 
-  var html = `<select class="custom-select custom-select-sm" id="parent-category-${count}">
+  var html = `<select class="custom-select custom-select-sm" id="parent-category-${transactionCount}">
                 <option value=0>--Parent Category--</option>
               </select>`;
   tableRow.insertCell().innerHTML = html;
 
-  html = `<select class="custom-select custom-select-sm" id="sub-category-${count}">
+  html = `<select class="custom-select custom-select-sm" id="sub-category-${transactionCount}">
             <option value=0>--Sub Category--</option>
           </select>`;
   tableRow.insertCell().innerHTML = html;
 
-  document.getElementById(`parent-category-${count}`).addEventListener("change", function() { populateSubCategories(this); addRow(); });
+  document.getElementById(`parent-category-${transactionCount}`).addEventListener("change", function() { populateSubCategories(this); addTransactionRow(); });
   tableRow.insertCell();
   populateParentCategories();
 }
 
 
 function addTransactions() {
-  var elements = document.getElementsByName("add-row");
+  var elements = document.getElementsByName("add-transaction-row");
   var transactionsArray = [];
   var i = 1;
 
@@ -262,4 +274,83 @@ function deleteTransaction(transactionId) {
     console.log("Not Confirmed");
     return false;
   }
+}
+
+
+function getIncomes(incomes) {
+  var table = document.getElementById('income-table-body');
+  incomes.forEach(function(income) {
+    var tableRow = table.insertRow();
+    tableRow.insertCell().innerHTML = income.date;
+    tableRow.insertCell().innerHTML = income.name;
+    tableRow.insertCell().innerHTML = income.amount.toFixed(2);
+
+    var html = `<button id="edit__income__${income.id}" class="btn btn-default btn-sm"><i class ="fas fa-edit"></i></button>
+                <button id="delete__income__${income.id}" class="btn btn-default btn-sm"><i class ="fas fa-trash-alt"></i></button>`;
+    tableRow.insertCell().innerHTML = html;
+    //document.getElementById(`delete__income__${income.id}`).addEventListener("click", function() { deleteIncome(income.id); });
+  });
+
+  var tableRow = table.insertRow();
+  tableRow.setAttribute("name", "add-income-row");
+  tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="income-date-${incomeCount}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="income-name-${incomeCount}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="income-amount-${incomeCount}"/>`;
+
+  document.getElementById(`income-amount-${incomeCount}`).addEventListener("change", function() { addIncomeRow(); });
+  tableRow.insertCell();
+}
+
+
+function addIncomes() {
+  var elements = document.getElementsByName("add-income-row");
+  var incomesArray = [];
+  var i = 1;
+
+  elements.forEach(function(e) {
+    var date = document.getElementById(`income-date-${i}`).value;
+    var name = document.getElementById(`income-name-${i}`).value;
+    var amount = document.getElementById(`income-amount-${i}`).value;
+    i++;
+
+    if (validateIncome(name, date, amount)) {
+      let incomeArray = [name, date, amount];
+      incomesArray.push(incomeArray);
+    }
+
+  });
+
+  transactionFunctions.bulkAddIncomes(incomesArray).then(
+    function (response) {
+      ipcRenderer.send('reload-transaction');
+    },
+    function (error) {
+      console.log(error);
+    }
+  );
+}
+
+
+function validateIncome(date, name, amount) {
+  if (date === "" || name === "" || amount === "") {
+    return false;
+  }
+
+  return true;
+}
+
+
+function addIncomeRow() {
+  document.getElementById(`income-amount-${transactionCount}`).removeEventListener("change", function() { addIncomeRow(); });
+  incomeCount++;
+
+  var table = document.getElementById('income-table-body');
+  var tableRow = table.insertRow();
+  tableRow.setAttribute("name", "add-income-row");
+  tableRow.insertCell().innerHTML = `<input type="date" class="form-control form-control-sm" id="income-date-${incomeCount}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Description" id="income-name-${incomeCount}"/>`;
+  tableRow.insertCell().innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="0.00" id="income-amount-${incomeCount}"/>`;
+
+  document.getElementById(`income-amount-${incomeCount}`).addEventListener("change", function() { addIncomeRow(); });
+  tableRow.insertCell();
 }
