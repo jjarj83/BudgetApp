@@ -75,3 +75,17 @@ exports.bulkAddTransactions = function(transactionsArray) {
     });
   });
 }
+
+
+exports.removeTransaction = function(transactionId) {
+  return new Promise(function (resolve, reject) {
+    $query = `DELETE FROM transactions WHERE id = ?`;
+
+    connection.query($query, [transactionId], function(err) {
+      if (err) {
+        reject(err);
+      }
+      resolve("Success");
+    });
+  });
+}

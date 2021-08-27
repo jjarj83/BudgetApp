@@ -26,6 +26,7 @@ window.addEventListener('load', (event) => {
   document.getElementById('file-select').addEventListener("input", function() { updateLabel(); });
 });
 
+
 function getTransactions(transactions) {
   var table = document.getElementById('table-body');
   transactions.forEach(function(transaction) {
@@ -45,6 +46,7 @@ function getTransactions(transactions) {
     var html = `<button id="edit__${transaction.id}" class="btn btn-default btn-sm"><i class ="fas fa-edit"></i></button>
                 <button id="delete__${transaction.id}" class="btn btn-default btn-sm"><i class ="fas fa-trash-alt"></i></button>`;
     tableRow.insertCell().innerHTML = html;
+    document.getElementById(`delete__${transaction.id}`).addEventListener("click", function() { deleteTransaction(transaction.id); });
   });
 
   var tableRow = table.insertRow();
@@ -242,4 +244,22 @@ function bulkAdd(newTransactions, categoriesHash) {
     }
   );
 
+}
+
+
+function deleteTransaction(transactionId) {
+  if (confirm('Are you sure you want to delete this')) {
+    console.log("Confirmed");
+    transactionFunctions.removeTransaction(transactionId).then(
+      function (response) {
+        ipcRenderer.send('reload-transaction');
+      },
+      function (error) {
+        console.log(error);
+      }
+    );
+  } else {
+    console.log("Not Confirmed");
+    return false;
+  }
 }
