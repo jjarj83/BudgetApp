@@ -49,6 +49,7 @@ window.addEventListener('load', (event) => {
       savingsStats = response;
       console.log(savingsStats);
       loadSavingsRate(savingsStats);
+      loadRetirementInfo(savingsStats);
     },
     function(error) {
       console.log(error);
@@ -94,7 +95,7 @@ function loadSpendingLineGraph(lineGraphInfo) {
         },
         {
           label: 'Income By Month',
-          data: [3800, 3800, 3800, 3800],
+          data: lineGraphInfo.income,
           tension: 0.1,
           borderColor: 'rgb(120, 194, 173)',
           backgroundColor: 'rgb(167, 215, 201)',
@@ -142,31 +143,46 @@ function loadSavingsRate(savingsStats) {
 
   document.getElementById('savings-rate').innerHTML = html;
 
-  html = '$' + avgExpenses.toFixed(2);
+  html = '$' + Number(avgExpenses.toFixed(2)).toLocaleString();
   document.getElementById('expenses').innerHTML = html;
 
-  html = '$' + avgIncome.toFixed(2);
+  html = '$' + Number(avgIncome.toFixed(2)).toLocaleString();
   document.getElementById('income').innerHTML = html;
 
 }
 
 
-function loadRetirement(connection, spending) {
-  var age = 23;
+function loadRetirementInfo(savingsStats) {
+  var avgExpenses = savingsStats.expenses / 7;
+  var goal = avgExpenses * 12 * 25;
+  var html = "$" + Number(goal.toFixed(2)).toLocaleString();
+  document.getElementById('retirement-goal').innerHTML = html;
 
-  $query = `SELECT 401k as fouronek, ira
-            FROM balance_entries
-            ORDER BY entry_date desc
-            LIMIT 1`
+  let retirementBalance = dashboardFunctions.getRetirementBalances().then(
+    function (response) {
 
-  connection.query($query, function(err, rows, fields) {
-    if (err) {
-      console.log("An error occured performing the query.");
-      console.log(err);
-      return;
+      retirementBalance = response;
+      console.log(retirementBalance);
+      var html = "$" + Number(retirementBalance.toFixed(2)).toLocaleString();
+      document.getElementById('retirement-savings').innerHTML = html;
+      var pct = ((retirementBalance / goal) * 100).toFixed(0);
+      console.log(pct);
+      document.getElementById('retirement-progress').style.width = `${pct}%`
+
+      calculateAge(goal, retirementBalance);
+    },
+    function(error) {
+      console.log(error);
     }
+  );
 
-    var investments = Number(rows[0].fouronek) + Number(rows[0].ira);
-    console.log(age, spending);
-  });
+}
+
+
+function calculateAge(goal, retirementBalance) {
+  var top = Math.log((goal * 0.08 + 25000) / (retirementBalance * 0.08 + 25000));
+  var bottom = Math.log(1.08);
+
+  var years = Math.ceil(top / bottom) + 23;
+  document.getElementById('retirement-age').innerHTML = years;
 }

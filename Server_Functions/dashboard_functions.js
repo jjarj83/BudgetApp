@@ -17,12 +17,12 @@ connection.connect(function(err) {
 
 exports.getSpendingPiChart = function() {
   return new Promise(function (resolve, reject) {
-    $query = `SELECT c.id, c.name, c.color, sum(s.amount) as amount
-              FROM categories c, stats s
+    $query = `SELECT c.id, c.name, c.color, sum(t.amount) as amount
+              FROM categories c, transactions t
               WHERE c.parent_category_id is null
-                    and c.id = s.category_id
-                    and s.stat_year = 2021 and s.stat_month > 1
-              GROUP BY c.id, c.name, c.color`;
+		            and(t.category_id = c.id or t.category_id in (SELECT id FROM categories WHERE parent_category_id = c.id))
+		            and t.date >= '2021-0-01'
+              GROUP BY c.id, c.name, c.color;`;
 
       connection.query($query, function(err, rows, fields) {
         if (err) {
@@ -49,11 +49,17 @@ exports.getSpendingPiChart = function() {
 
 exports.getSpendingLineGraph = function() {
   return new Promise(function (resolve, reject) {
-    $query = `SELECT stat_year, stat_month, sum(amount) as amount
-              FROM stats
-              GROUP BY stat_year, stat_month
-              ORDER BY stat_year desc, stat_month desc
-              LIMIT 6`;
+    $query = `(SELECT 'transaction' as label, year(t.date) as year, month(t.date) as month, sum(t.amount) as amount
+              FROM transactions t
+              GROUP BY year(t.date), month(t.date)
+              ORDER BY year(t.date) desc, month(t.date) desc
+              LIMIT 6)
+              UNION
+              (SELECT 'income' as label, year(i.date) as year, month(i.date) as month, sum(i.amount) as amount
+              FROM incomes i
+              GROUP BY year(i.date), month(i.date)
+              ORDER BY year(i.date) desc, month(i.date) desc
+              LIMIT 6)`;
 
     connection.query($query, function(err, rows, fields) {
       if (err) {
@@ -62,16 +68,22 @@ exports.getSpendingLineGraph = function() {
 
       let lineGraph = {
         labels: [],
-        spending: []
+        spending: [],
+        income: []
       };
 
       rows.forEach(function(row){
-        var label = row.stat_month + '/' + row.stat_year;
-        lineGraph.labels.push(label);
-        lineGraph.spending.push(row.amount);
+        if (row.label === 'transaction') {
+          var label = row.month + '/' + row.year;
+          lineGraph.labels.push(label);
+          lineGraph.spending.push(row.amount);
+        } else {
+          lineGraph.income.push(row.amount);
+        }
       });
       lineGraph.labels = lineGraph.labels.reverse();
       lineGraph.spending = lineGraph.spending.reverse();
+      lineGraph.income = lineGraph.income.reverse();
 
       resolve(lineGraph);
     });
@@ -110,8 +122,8 @@ exports.getBalanceStats = function() {
 exports.getSavingsStats = function() {
   return new Promise(function (resolve, reject) {
     $query = `SELECT 'expenses' as name, sum(amount) as amount
-              FROM stats
-              WHERE stat_year = 2021 and stat_month < 8
+              FROM transactions
+              WHERE date >= '2021-01-01' and date < '2021-08-01'
               UNION
               SELECT 'income' as name, sum(amount) as amount
               FROM incomes
@@ -130,5 +142,25 @@ exports.getSavingsStats = function() {
       resolve(savingsStats);
     });
 
+  });
+}
+
+
+exports.getRetirementBalances = function() {
+  return new Promise(function (resolve, reject) {
+    $query = `SELECT 401k as fourOneK, ira
+              FROM balance_entries
+              ORDER BY entry_date desc
+              LIMIT 1`;
+
+    connection.query($query, function(err, rows, fields) {
+      if (err) {
+        reject(err);
+      }
+
+      let retirementBalance = Number(rows[0].fourOneK) + Number(rows[0].ira);
+
+      resolve(retirementBalance);
+    });
   });
 }

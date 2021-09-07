@@ -55,12 +55,6 @@
                     <canvas id="spending-chart" class="chartjs-render-monitor" width="400" height="400"></canvas>
                   </div>
                 </div>
-                <div class="card-footer">
-                  <div class="progress">
-                    <div class="progress-bar bg-danger" style="width: 100%"></div>
-                  </div>
-                  <span class="progress-description">100% of Monthly Budget</span>
-                </div>
               </div>
             </div>
             <div class="col-md-6">
@@ -90,6 +84,38 @@
                     </div>
                     <canvas id="balance-graph" class="chartjs-render-monitor" width="400" height="200"></canvas>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 col-sm-6 col-12">
+              <div class="info-box">
+                <span class="info-box-icon bg-info"><i class="fas fa-piggy-bank"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">Retirement Savings</span>
+                  <span class="info-box-number" id="retirement-savings">$0.00</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6 col-12">
+              <div class="info-box">
+                <span class="info-box-icon bg-info"><i class="fas fa-bullseye"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">Retirement Goal</span>
+                  <span class="info-box-number" id="retirement-goal">$0.00</span>
+                  <div class="progress">
+                    <div class="progress-bar bg-info" id="retirement-progress" style="width: 70%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6 col-12">
+              <div class="info-box">
+                <span class="info-box-icon bg-info"><i class="fas fa-hourglass-half"></i></span>
+                <div class="info-box-content">
+                  <span class="info-box-text">Retirement Age</span>
+                  <span class="info-box-number" id="retirement-age">0</span>
                 </div>
               </div>
             </div>
