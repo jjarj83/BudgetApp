@@ -43,6 +43,7 @@ function getTransactions(transactions) {
   var table = document.getElementById('transaction-table-body');
   transactions.forEach(function(transaction) {
     var tableRow = table.insertRow();
+    tableRow.id = `transaction__${transaction.id}`;
     tableRow.insertCell().innerHTML = transaction.date;
     tableRow.insertCell().innerHTML = transaction.name;
     tableRow.insertCell().innerHTML = transaction.amount.toFixed(2);
@@ -175,7 +176,18 @@ function addTransactions() {
 
   transactionFunctions.bulkAddTransactions(transactionsArray).then(
     function (response) {
-      ipcRenderer.send('reload-transaction');
+      let transactions = transactionFunctions.getTransactions().then(
+        function (response) {
+          document.getElementById('transaction-table-body').innerHTML = "";
+          transactions = response;
+          console.log(transactions);
+          getTransactions(transactions);
+        },
+        function (error) {
+          console.log(error);
+        }
+      );
+      //ipcRenderer.send('reload-transaction');
     },
     function (error) {
       console.log(error);
@@ -242,14 +254,25 @@ function bulkAdd(newTransactions, categoriesHash) {
       transactionsArray.push(transactionArray);
 
     } else {
-      console.log(newTransaction[3], "does not exist");
+      console.log(newTransaction, "invalid Category");
     }
 
   });
 
   transactionFunctions.bulkAddTransactions(transactionsArray).then(
     function (response) {
-      ipcRenderer.send('reload-transaction');
+      let transactions = transactionFunctions.getTransactions().then(
+        function (response) {
+          document.getElementById('transaction-table-body').innerHTML = "";
+          transactions = response;
+          console.log(transactions);
+          getTransactions(transactions);
+        },
+        function (error) {
+          console.log(error);
+        }
+      );
+      //ipcRenderer.send('reload-transaction');
     },
     function (error) {
       console.log(error);
@@ -264,7 +287,7 @@ function deleteTransaction(transactionId) {
     console.log("Confirmed");
     transactionFunctions.removeTransaction(transactionId).then(
       function (response) {
-        ipcRenderer.send('reload-transaction');
+        document.getElementById(`transaction__${transactionId}`).remove();
       },
       function (error) {
         console.log(error);
@@ -322,7 +345,18 @@ function addIncomes() {
 
   transactionFunctions.bulkAddIncomes(incomesArray).then(
     function (response) {
-      ipcRenderer.send('reload-transaction');
+      let incomes = transactionFunctions.getIncomes().then(
+        function (response) {
+          document.getElementById('income-table-body').innerHTML = "";
+          incomes = response;
+          console.log(incomes);
+          getIncomes(transactions);
+        },
+        function (error) {
+          console.log(error);
+        }
+      );
+      //ipcRenderer.send('reload-transaction');
     },
     function (error) {
       console.log(error);
