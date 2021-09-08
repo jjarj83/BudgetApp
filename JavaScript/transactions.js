@@ -2,15 +2,26 @@ const { ipcRenderer } = require('electron')
 const categoryFunctions = require('../Server_Functions/category_functions.js')
 const transactionFunctions = require('../Server_Functions/transaction_functions.js')
 const csv = require('jquery-csv')
+
 var transactionCount = 1; var incomeCount = 1;
 let $ = require('jquery');
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0');
+var yyyy = today.getFullYear();
+var startDate = yyyy + '-' + mm + '-01';
+var endDate = yyyy + '-' + mm + '-' + dd;
+document.getElementById('transaction-start-date').value = startDate;
+document.getElementById('transaction-end-date').value = endDate;
+document.getElementById('income-start-date').value = startDate;
+document.getElementById('income-end-date').value = endDate;
 
 window.addEventListener('load', (event) => {
   $(function() {
     $("#sidebar").load("sidebar.html");
   })
 
-  let transactions = transactionFunctions.getTransactions().then(
+  let transactions = transactionFunctions.getTransactions(startDate, endDate).then(
     function (response) {
       transactions = response;
       console.log(transactions);
@@ -21,7 +32,7 @@ window.addEventListener('load', (event) => {
     }
   );
 
-  let incomes = transactionFunctions.getIncomes().then(
+  let incomes = transactionFunctions.getIncomes(startDate, endDate).then(
     function (response) {
       incomes = response;
       console.log(incomes);
@@ -36,6 +47,8 @@ window.addEventListener('load', (event) => {
   document.getElementById('save-incomes').addEventListener("click", function() { addIncomes(); });
   document.getElementById('file-upload').addEventListener("click", function() { readFile(); });
   document.getElementById('file-select').addEventListener("input", function() { updateLabel(); });
+  document.getElementById('transaction-filter').addEventListener("click", function() { reloadTransactions(); });
+  document.getElementById('income-filter').addEventListener("click", function() { reloadIncomes(); });
 });
 
 
@@ -176,17 +189,7 @@ function addTransactions() {
 
   transactionFunctions.bulkAddTransactions(transactionsArray).then(
     function (response) {
-      let transactions = transactionFunctions.getTransactions().then(
-        function (response) {
-          document.getElementById('transaction-table-body').innerHTML = "";
-          transactions = response;
-          console.log(transactions);
-          getTransactions(transactions);
-        },
-        function (error) {
-          console.log(error);
-        }
-      );
+      reloadTransactions();
       //ipcRenderer.send('reload-transaction');
     },
     function (error) {
@@ -261,17 +264,7 @@ function bulkAdd(newTransactions, categoriesHash) {
 
   transactionFunctions.bulkAddTransactions(transactionsArray).then(
     function (response) {
-      let transactions = transactionFunctions.getTransactions().then(
-        function (response) {
-          document.getElementById('transaction-table-body').innerHTML = "";
-          transactions = response;
-          console.log(transactions);
-          getTransactions(transactions);
-        },
-        function (error) {
-          console.log(error);
-        }
-      );
+      reloadTransactions();
       //ipcRenderer.send('reload-transaction');
     },
     function (error) {
@@ -345,17 +338,7 @@ function addIncomes() {
 
   transactionFunctions.bulkAddIncomes(incomesArray).then(
     function (response) {
-      let incomes = transactionFunctions.getIncomes().then(
-        function (response) {
-          document.getElementById('income-table-body').innerHTML = "";
-          incomes = response;
-          console.log(incomes);
-          getIncomes(transactions);
-        },
-        function (error) {
-          console.log(error);
-        }
-      );
+      reloadIncomes();
       //ipcRenderer.send('reload-transaction');
     },
     function (error) {
@@ -387,4 +370,42 @@ function addIncomeRow() {
 
   document.getElementById(`income-amount-${incomeCount}`).addEventListener("change", function() { addIncomeRow(); });
   tableRow.insertCell();
+}
+
+
+function reloadTransactions() {
+  startDate = document.getElementById('transaction-start-date').value;
+  //console.log(startDate);
+  endDate = document.getElementById('transaction-end-date').value;
+
+  let transactions = transactionFunctions.getTransactions(startDate, endDate).then(
+    function (response) {
+      document.getElementById('transaction-table-body').innerHTML = "";
+      transactions = response;
+      console.log(transactions);
+      getTransactions(transactions);
+    },
+    function (error) {
+      console.log(error);
+    }
+  );
+}
+
+
+function reloadIncomes() {
+  startDate = document.getElementById('income-start-date').value;
+  //console.log(startDate);
+  endDate = document.getElementById('income-end-date').value;
+
+  let incomes = transactionFunctions.getIncomes(startDate, endDate).then(
+    function (response) {
+      document.getElementById('income-table-body').innerHTML = "";
+      incomes = response;
+      console.log(incomes);
+      getIncomes(incomes);
+    },
+    function (error) {
+      console.log(error);
+    }
+  );
 }

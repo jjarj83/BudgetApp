@@ -14,12 +14,12 @@ connection.connect(function(err) {
   }
 });
 
-exports.getTransactions = function() {
+exports.getTransactions = function(startDate, endDate) {
   return new Promise(function (resolve, reject) {
     $query = `SELECT  t.id, date_format(t.date, '%m-%d-%Y') as date, t.name, t.amount, c1.name as category, c2.name as parent_category
               FROM    transactions t, categories c1 LEFT OUTER JOIN categories c2 ON c1.parent_category_id = c2.id
               WHERE   t.category_id = c1.id
-	                    and t.date >= '2021-09-01'
+	                    and t.date >= '${startDate}' and t.date <= '${endDate}'
               ORDER BY t.date`;
 
     connection.query($query, function(err, rows, fields) {
@@ -75,10 +75,12 @@ exports.removeTransaction = function(transactionId) {
 }
 
 
-exports.getIncomes = function() {
+exports.getIncomes = function(startDate, endDate) {
   return new Promise(function (resolve, reject) {
     $query = `SELECT i.id, date_format(i.date, '%m-%d-%Y') as date, i.name, i.amount
-              FROM incomes i`,
+              FROM incomes i
+              WHERE i.date >= '${startDate}' and i.date <= '${endDate}'
+              ORDER BY i.date`,
 
     connection.query($query, function(err, rows, fields) {
       if (err) {

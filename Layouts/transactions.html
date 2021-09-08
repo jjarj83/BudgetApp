@@ -32,6 +32,19 @@
               <div class="card card-olive">
                 <div class="card-header navbar navbar-expand">
                   <h5>Transactions</h5>
+                  <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                      <input type="date" class="form-control form-control-sm" id="transaction-start-date"/>
+                    </li>
+                    &nbsp;-&nbsp;
+                    <li class="nav-item">
+                      <input type="date" class="form-control form-control-sm" id="transaction-end-date"/>
+                    </li>
+                    &nbsp;
+                    <li class="nav-item">
+                      <button type="button" class="btn btn-light btn-sm" id="transaction-filter"><i class="fas fa-filter"></i></button>
+                    </li>
+                  </ul>
                 </div>
                 <div class="card-body table-responsive p-0">
                   <table id="transactions-table" class="table table-sm table-hover text-nowrap">
@@ -64,6 +77,19 @@
               <div class="card card-olive">
                 <div class="card-header navbar navbar-expand">
                   <h5>Income</h5>
+                  <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                      <input type="date" class="form-control form-control-sm" id="income-start-date"/>
+                    </li>
+                    &nbsp;-&nbsp;
+                    <li class="nav-item">
+                      <input type="date" class="form-control form-control-sm" id="income-end-date"/>
+                    </li>
+                    &nbsp;
+                    <li class="nav-item">
+                      <button type="button" class="btn btn-light btn-sm" id="income-filter"><i class="fas fa-filter"></i></button>
+                    </li>
+                  </ul>
                 </div>
                 <div class="card-body table-responsive p-0">
                   <table id="income-table" class="table table-sm table-hover text-nowrap">
