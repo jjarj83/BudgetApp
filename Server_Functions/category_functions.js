@@ -19,8 +19,9 @@ connection.connect(function(err) {
 exports.getCategories = function () {
   return new Promise(function (resolve, reject) {
     $query = `SELECT c.id, c.name, c.color, c.parent_category_id,
-                (select sum(s.amount) from stats s where s.category_id = c.id and s.stat_month = 4 and s.stat_year = 2021) as amount
-  	          FROM categories c`;
+		            (SELECT sum(t.amount) as amount FROM transactions t WHERE (t.category_id = c.id or t.category_id in
+			               (SELECT id FROM categories WHERE parent_category_id = c.id)) and t.date >= '2021-09-01') as amount
+              FROM categories c`;
 
     connection.query($query, function(err, rows, fields) {
       var parentCategories = {};

@@ -16,6 +16,14 @@ document.getElementById('transaction-end-date').value = endDate;
 document.getElementById('income-start-date').value = startDate;
 document.getElementById('income-end-date').value = endDate;
 
+ipcRenderer.on('reload-transaction-table', function() {
+  reloadTransactions();
+})
+
+ipcRenderer.on('reload-income-table', function() {
+  reloadIncomes();
+})
+
 window.addEventListener('load', (event) => {
   $(function() {
     $("#sidebar").load("sidebar.html");
@@ -73,6 +81,7 @@ function getTransactions(transactions) {
                 <button id="delete__${transaction.id}" class="btn btn-default btn-sm"><i class ="fas fa-trash-alt"></i></button>`;
     tableRow.insertCell().innerHTML = html;
     document.getElementById(`delete__${transaction.id}`).addEventListener("click", function() { deleteTransaction(transaction.id); });
+    document.getElementById(`edit__${transaction.id}`).addEventListener("click", function() { editTransaction(transaction.id, "transaction"); });
   });
 
   var tableRow = table.insertRow();
@@ -293,10 +302,39 @@ function deleteTransaction(transactionId) {
 }
 
 
+function deleteIncome(incomeId) {
+  if (confirm('Are you sure you want to delete this')) {
+    console.log("Confirmed");
+    transactionFunctions.removeIncome(incomeId).then(
+      function (response) {
+        document.getElementById(`income__${incomeId}`).remove();
+      },
+      function (error) {
+        console.log(error);
+      }
+    );
+  } else {
+    console.log("Not Confirmed");
+    return false;
+  }
+}
+
+
+function editTransaction(id, type) {
+  let params = {
+    id: id,
+    type: type
+  };
+  console.log(params);
+  ipcRenderer.send('load-editTransaction', params);
+}
+
+
 function getIncomes(incomes) {
   var table = document.getElementById('income-table-body');
   incomes.forEach(function(income) {
     var tableRow = table.insertRow();
+    tableRow.id = `income__${income.id}`;
     tableRow.insertCell().innerHTML = income.date;
     tableRow.insertCell().innerHTML = income.name;
     tableRow.insertCell().innerHTML = income.amount.toFixed(2);
@@ -304,7 +342,8 @@ function getIncomes(incomes) {
     var html = `<button id="edit__income__${income.id}" class="btn btn-default btn-sm"><i class ="fas fa-edit"></i></button>
                 <button id="delete__income__${income.id}" class="btn btn-default btn-sm"><i class ="fas fa-trash-alt"></i></button>`;
     tableRow.insertCell().innerHTML = html;
-    //document.getElementById(`delete__income__${income.id}`).addEventListener("click", function() { deleteIncome(income.id); });
+    document.getElementById(`delete__income__${income.id}`).addEventListener("click", function() { deleteIncome(income.id); });
+    document.getElementById(`edit__income__${income.id}`).addEventListener("click", function() { editTransaction(income.id, "income"); });
   });
 
   var tableRow = table.insertRow();

@@ -17,7 +17,7 @@ app.on('ready', function() {
   mainWindow.loadFile('Layouts/dashboard.html');
   mainWindow.openDevTools();
 
-  ipcMain.on('load-editTransaction', function(event, pid) {
+  ipcMain.on('load-editTransaction', function(event, params) {
     //will have to make this a seperate function so I can have different events triggering it
     childWindow = new BrowserWindow({
       webPreferences: {
@@ -30,14 +30,19 @@ app.on('ready', function() {
       modal: true,
     });
 
-    childWindow.loadFile('Transactions/edit_transaction.html');
+    childWindow.loadFile('Layouts/edit_transaction.html', {query: {id: params.id, type: params.type}});
     childWindow.openDevTools();
   })
 
-  ipcMain.on('reload-transaction', function() {
-    mainWindow.reload();
+  ipcMain.on('close-editTransaction', function() {
+    childWindow.close();
+    mainWindow.webContents.send('reload-transaction-table');
   })
 
+  ipcMain.on('close-editIncome', function() {
+    childWindow.close();
+    mainWindow.webContents.send('reload-income-table');
+  })
 
   ipcMain.on('load-editCategory', function(event, pid) {
     //will have to make this a seperate function so I can have different events triggering it
